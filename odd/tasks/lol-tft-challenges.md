@@ -115,20 +115,39 @@ Until T3 lands there is no runner, so tasks before it are verified by build and 
       *Dropped:* `vite-tsconfig-paths`, which Vite now supersedes with native
       `resolve.tsconfigPaths`. `@types/node` bumped 20 → 22 to satisfy Vitest 5's peer range and
       to match the actual Node 22.16.0 runtime.
-- [ ] **T4 — Domain types.** `MatchSummary` with a `game: 'lol'` discriminant and the LoL fields
-      (champion, role, queue, win, duration, played-at). `Rule` variants `WinCount`,
-      `ChampionPlayed`, `RolePlayed` and `QueueType`. Zero Riot imports in this layer.
-      *Already landed in T3:* `src/domain/game.ts` with `Game`, `SUPPORTED_GAMES` and
-      `isSupportedGame`, plus its specs.
+- [x] **T4 — Domain types.** `LolMatchSummary` (champion, role, queue, win, duration, played-at)
+      behind a `MatchSummary` alias that widens to a union in v2; `Role` and `Queue` with their
+      guards; `Criterion`, `Rule` and `qualifies` in `src/domain/rule.ts`. Zero Riot imports.
+      *Design corrected during this task.* The plan said four `Rule` variants — `WinCount`,
+      `ChampionPlayed`, `RolePlayed`, `QueueType` — each with its own target. That model cannot
+      express the motivating example: "win 10 ranked games as Jungle" is one goal with three
+      simultaneous conditions, and as separate rules it would be satisfied by thirty unrelated
+      games. The four variants became `Criterion` values and the count moved up to the `Rule`,
+      which holds a `target` and a list of criteria that a match must satisfy in full. An empty
+      criteria list expresses "play N games".
+      *Also landed here:* `src/domain/match.fixture.ts`, an `aMatch()` builder that T5 reuses.
+      *Observed RED:* both suites failed on missing modules before implementation.
+      *Observed GREEN:* 22 passed, exit 0; `pnpm typecheck`, `pnpm lint`, `pnpm build` exit 0.
       *Why keep a discriminant with one variant:* TFT is scheduled, not speculative. The field
       costs one literal now and makes v2 additive — a new union member plus new rules — instead
       of revisiting every consumer. Rules declare the game they apply to for the same reason.
       *Check:* Vitest RED then GREEN; typecheck passes.
-- [ ] **T5 — Progress evaluation.** Pure `evaluate(rules, matches)` returning per-rule progress
-      and completion.
-      *Check:* Vitest RED then GREEN, including edge cases (empty match list, matches outside
-      the challenge window, a rule whose target is already exceeded, remakes and very short
-      games).
+- [x] **T5 — Progress evaluation.** `evaluate(rules, matches, window)` in `src/domain/progress.ts`,
+      returning `ChallengeProgress` with one `RuleProgress` per rule. Pure: no clock, no network,
+      no storage — every input that affects the answer is an argument.
+      *Three decisions the plan did not settle:*
+      1. The challenge window is a parameter of `evaluate`, not something the caller pre-filters.
+         Forgetting to filter is a silent wrong-answer bug, so the domain owns it. Both bounds
+         inclusive.
+      2. Matches shorter than `MINIMUM_COUNTED_DURATION_SECONDS` (300) do not count. Without
+         this, "play 20 games" is farmable by remaking twenty times. LoL permits a remake at
+         three minutes; five gives margin. **Open to change — see open decisions.**
+      3. `current` is not clamped to `target`. 12/10 is honest; the UI can clamp a bar, the
+         domain should not discard the fact.
+      *Also added:* deduplication by `matchId`, because `match_cache` is shared across
+      overlapping challenges and double-counting would complete a challenge early.
+      *Observed RED:* suite failed on the missing module, exit 1.
+      *Observed GREEN:* 36 passed, exit 0; `pnpm typecheck`, `pnpm lint`, `pnpm build` exit 0.
 - [ ] **T6 — MatchProvider port + Riot adapter.** Port defined by the domain; `RiotApiAdapter`
       implements it, reading `X-App-Rate-Limit` and `X-Method-Rate-Limit` off responses and
       honouring `Retry-After` on 429. Correct platform vs regional routing per endpoint:
@@ -173,6 +192,9 @@ Until T3 lands there is no runner, so tasks before it are verified by build and 
       deferred to v2. Scope, T4, T5 and T6 revised accordingly.
 - [ ] Launch regions. LAN and LAS are the likely first targets; each carries its own rate-limit
       budget. Asked, unanswered. Blocks nothing before T6.
+- [ ] Should remakes and early surrenders count towards a challenge? T5 currently excludes
+      anything under 5 minutes, to stop "play 20 games" being farmed by remaking. Assumed, not
+      confirmed — change `MINIMUM_COUNTED_DURATION_SECONDS` if you disagree.
 - [ ] Personal goals only, or group competitions with a shared leaderboard?
 - [ ] Monetization intent — changes what Riot requires at registration.
 - [ ] UI language: Spanish, English, or both.
@@ -188,6 +210,12 @@ Started 2026-09-16. Repository on `main`.
   `wrangler login`, which only the repository owner can run.
 - **T3 complete.** Vitest harness running; RED observed twice and GREEN at 3 passing specs. The
   first domain module, `src/domain/game.ts`, is in place.
+- **T4 complete.** Match and rule types landed, 22 specs passing. The rule model was corrected
+  mid-task: criteria combine inside one rule instead of being separate rules. This changes the
+  shape stored in `challenges.rules_json` at T7.
+- **T5 complete.** `evaluate` landed, 36 specs passing. The domain layer is now finished and
+  fully tested without a Riot key, a database or a network — which was the point of building it
+  first.
 
 **Blocked, needing the owner:**
 
@@ -199,4 +227,6 @@ Started 2026-09-16. Repository on `main`.
 **Scope narrowed 2026-09-16:** League of Legends only for v1; TFT deferred to v2. No completed
 work was invalidated — T1 and T2 are game-agnostic infrastructure.
 
-**Next step:** T4 — `MatchSummary` and the four `Rule` variants, RED first.
+**Next step:** T6 — `MatchProvider` port and `RiotApiAdapter`, RED first against recorded
+fixtures. This is the first task that needs a Riot API key, so a personal key is required before
+the adapter can be checked against real response shapes.
