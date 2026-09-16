@@ -1,3 +1,10 @@
 ignoredBuiltDependencies:
   - sharp
   - unrs-resolver
+
+# workerd is the Cloudflare Workers runtime used by `opennextjs-cloudflare
+# preview`; esbuild bundles the worker. Both need their postinstall to fetch a
+# platform binary, so they must be allowed to run build scripts.
+onlyBuiltDependencies:
+  - esbuild
+  - workerd

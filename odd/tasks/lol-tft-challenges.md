@@ -28,15 +28,20 @@ Three constraints decide the architecture:
 
 ## Scope
 
+**League of Legends only in v1.** Decided 2026-09-16. TFT is deferred, not cancelled, which is
+why the domain keeps a `game` discriminant from the start — see the note under T4.
+
 **In scope for v1**
 
-- Create, share and join challenges for LoL and TFT
-- Automatic progress tracking from match history
+- Create, share and join challenges for League of Legends
+- Automatic progress tracking from LoL match history
 - Discord sign-in; link one or more Riot IDs to an account
 - Public challenge pages shareable by URL
 
 **Out of scope for v1**
 
+- Teamfight Tactics. Deferred to v2: `tft-match-v1`, `tft-league-v1`, `tft-summoner-v1`, the
+  `tft` variant of `MatchSummary`, and placement-based rules.
 - Real account ownership verification (blocked on RSO)
 - Cash prizes or entry fees (Riot ToS permits only fee-funded tournaments with a 70% payout)
 - Any invented skill rating or MMR (prohibited by Riot ToS)
@@ -69,11 +74,15 @@ Three constraints decide the architecture:
 - **TDD mode: strict**, resolved from the project CLAUDE.md directive "Strict TDD Mode: enabled".
   Observed RED before implementation, then GREEN, then refactor. No invented test evidence.
 - **Test runner: Vitest** (`pnpm test`), installed in T3. Playwright (`pnpm test:e2e`) from T12.
-- Typecheck: `pnpm typecheck` — runs `next typegen && tsc --noEmit`. The typegen step is not
-  optional: Next 16 generates `LayoutProps` and friends into `.next/types`, so a bare `tsc
-  --noEmit` fails on a clean checkout.
-- Lint: `pnpm lint`
-- Build: `pnpm build`
+- Typecheck: `pnpm typecheck` — runs `next typegen && pnpm cf-typegen && tsc --noEmit`. Both
+  generator steps are load-bearing, because both emit types that are gitignored: Next 16 writes
+  `LayoutProps` and friends into `.next/types`, and `wrangler types` writes the 596 KB
+  `cloudflare-env.d.ts`. A bare `tsc --noEmit` fails on a clean checkout.
+- Lint: `pnpm lint` — generated output (`.open-next/`, `.wrangler/`, `cloudflare-env.d.ts`) is
+  excluded in `eslint.config.mjs`; without that, ESLint reports thousands of problems in
+  bundled worker code.
+- Build: `pnpm build` (Next) and `pnpm exec opennextjs-cloudflare build` (worker)
+- Local runtime: `pnpm exec wrangler dev` serves the built worker on `workerd`
 
 Until T3 lands there is no runner, so tasks before it are verified by build and typecheck only.
 
@@ -84,23 +93,46 @@ Until T3 lands there is no runner, so tasks before it are verified by build and 
       because `create-next-app` refuses a directory holding files it does not recognise; the
       generated `.gitignore` was merged into the existing one rather than replacing it.
       *Observed:* `pnpm typecheck` exit 0, `pnpm build` exit 0, `pnpm lint` exit 0.
-- [ ] **T2 — Cloudflare target.** Add `@opennextjs/cloudflare` and `wrangler.jsonc`. Deploy the
-      empty app to a `workers.dev` subdomain.
-      *Check:* deployed URL returns 200.
-- [ ] **T3 — Test harness.** Vitest configured for the domain layer. One failing placeholder test
-      to prove RED is observable.
-      *Check:* `pnpm test` runs and reports the expected failure, then passes once implemented.
-- [ ] **T4 — Domain types.** `MatchSummary` as a discriminated union on `game: 'lol' | 'tft'`,
-      plus `Rule` variants (`WinCount`, `ChampionPlayed`, `PlacementUnder`, `QueueType`). Zero
-      Riot imports in this layer.
+- [ ] **T2 — Cloudflare target.** *Partial: configured and verified locally, deploy blocked.*
+      `@opennextjs/cloudflare` 1.20.6 and `wrangler` 4.133.0 installed; `wrangler.jsonc`,
+      `open-next.config.ts` and `initOpenNextCloudflareForDev()` in place.
+      *Observed:* `opennextjs-cloudflare build` exit 0 producing `.open-next/worker.js`; the
+      worker served `GET / 200 OK` under local `workerd`; `pnpm typecheck`, `pnpm lint` and
+      `pnpm build` all exit 0.
+      *Blocked:* `wrangler whoami` reports not authenticated. Deploying needs an interactive
+      `wrangler login` OAuth flow, which is the repository owner's to run.
+      *Remaining check:* deployed `workers.dev` URL returns 200.
+- [x] **T3 — Test harness.** Vitest 5.0.1 in `vitest.config.mts`, node environment, specs matched
+      at `src/**/*.test.ts`, `@/*` resolved through `resolve.tsconfigPaths`. Scripts `pnpm test`
+      and `pnpm test:watch`.
+      *Instead of a throwaway placeholder*, the RED was proven against `src/domain/game.ts` —
+      the `Game` discriminant, which T4 needs anyway. That also proved the `@/` alias resolves
+      under Vitest, which a self-contained placeholder could not.
+      *Observed RED twice:* first a missing-module failure before `game.ts` existed, then, after
+      the config was rewritten, a deliberate assertion failure reporting
+      `expected [ 'lol' ] to include 'deliberate-failure'` at `game.test.ts:7` with exit 1.
+      *Observed GREEN:* 3 passed, exit 0; `pnpm typecheck`, `pnpm lint`, `pnpm build` all exit 0.
+      *Dropped:* `vite-tsconfig-paths`, which Vite now supersedes with native
+      `resolve.tsconfigPaths`. `@types/node` bumped 20 → 22 to satisfy Vitest 5's peer range and
+      to match the actual Node 22.16.0 runtime.
+- [ ] **T4 — Domain types.** `MatchSummary` with a `game: 'lol'` discriminant and the LoL fields
+      (champion, role, queue, win, duration, played-at). `Rule` variants `WinCount`,
+      `ChampionPlayed`, `RolePlayed` and `QueueType`. Zero Riot imports in this layer.
+      *Already landed in T3:* `src/domain/game.ts` with `Game`, `SUPPORTED_GAMES` and
+      `isSupportedGame`, plus its specs.
+      *Why keep a discriminant with one variant:* TFT is scheduled, not speculative. The field
+      costs one literal now and makes v2 additive — a new union member plus new rules — instead
+      of revisiting every consumer. Rules declare the game they apply to for the same reason.
       *Check:* Vitest RED then GREEN; typecheck passes.
 - [ ] **T5 — Progress evaluation.** Pure `evaluate(rules, matches)` returning per-rule progress
-      and completion. Covers both games.
-      *Check:* Vitest RED then GREEN, including edge cases (empty match list, rule targeting the
-      other game, matches outside the challenge window).
+      and completion.
+      *Check:* Vitest RED then GREEN, including edge cases (empty match list, matches outside
+      the challenge window, a rule whose target is already exceeded, remakes and very short
+      games).
 - [ ] **T6 — MatchProvider port + Riot adapter.** Port defined by the domain; `RiotApiAdapter`
       implements it, reading `X-App-Rate-Limit` and `X-Method-Rate-Limit` off responses and
-      honouring `Retry-After` on 429. Correct platform vs regional routing per endpoint.
+      honouring `Retry-After` on 429. Correct platform vs regional routing per endpoint:
+      `account-v1` and `match-v5` are regional, `summoner-v4` and `league-v4` are platform.
       *Check:* Vitest against recorded fixtures; no live calls in tests.
 - [ ] **T7 — Persistence.** D1 schema and Drizzle migrations for `users`, `riot_accounts`,
       `challenges`, `participants`, `progress`, `match_cache`, `poll_state`.
@@ -131,16 +163,16 @@ Until T3 lands there is no runner, so tasks before it are verified by build and 
 
 - A user signs in with Discord, links a Riot ID, creates a challenge and shares its URL
 - A second user opens that URL, joins, and both see progress update automatically after playing
-- Progress is correct for both LoL and TFT challenges
+- Progress is correct for LoL challenges across win-count, champion, role and queue rules
 - Polling stays inside the personal key's rate limit during private beta
 - Monthly cost stays at or under 19 MXN
 
 ## Open decisions
 
+- [x] **LoL and TFT together, or LoL first?** Answered 2026-09-16: **LoL only in v1.** TFT
+      deferred to v2. Scope, T4, T5 and T6 revised accordingly.
 - [ ] Launch regions. LAN and LAS are the likely first targets; each carries its own rate-limit
-      budget. Asked, unanswered.
-- [ ] LoL and TFT together in v1, or LoL first? Asked via a comment on the decision document,
-      unanswered. T4 and T5 are written to support both either way, so this does not block them.
+      budget. Asked, unanswered. Blocks nothing before T6.
 - [ ] Personal goals only, or group competitions with a shared leaderboard?
 - [ ] Monetization intent — changes what Riot requires at registration.
 - [ ] UI language: Spanish, English, or both.
@@ -150,5 +182,21 @@ Until T3 lands there is no runner, so tasks before it are verified by build and 
 Started 2026-09-16. Repository on `main`.
 
 - **T1 complete.** Next.js 16.3.5 scaffold in place; typecheck, build and lint all pass.
+  Committed as `b4b4122`.
+- **T2 partial.** Cloudflare target configured and proven locally — the OpenNext build produces
+  a worker that serves 200 under `workerd`. The deploy step is blocked on an interactive
+  `wrangler login`, which only the repository owner can run.
+- **T3 complete.** Vitest harness running; RED observed twice and GREEN at 3 passing specs. The
+  first domain module, `src/domain/game.ts`, is in place.
 
-**Next step:** T2 — add `@opennextjs/cloudflare` and `wrangler.jsonc`, deploy to `workers.dev`.
+**Blocked, needing the owner:**
+
+1. `wrangler login`, to finish T2's deploy.
+2. Re-authenticate the `claude` CLI. The native review lineage `review-15df7d00d361b982` is open
+   at state `reviewing` for the T1 candidate; its reviewer subprocess fails with a 401 on an
+   invalid OAuth token, so no receipt exists. This does not block T3.
+
+**Scope narrowed 2026-09-16:** League of Legends only for v1; TFT deferred to v2. No completed
+work was invalidated — T1 and T2 are game-agnostic infrastructure.
+
+**Next step:** T4 — `MatchSummary` and the four `Rule` variants, RED first.

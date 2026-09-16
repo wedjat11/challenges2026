@@ -1,0 +1,24 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "lol-tft-challenges",
+  "main": ".open-next/worker.js",
+  "compatibility_date": "2026-09-16",
+  // nodejs_compat is required by the OpenNext runtime.
+  // global_fetch_strictly_public makes fetch() to our own routes go through
+  // the public internet path, matching Next.js behaviour on other hosts.
+  "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+  "assets": {
+    "directory": ".open-next/assets",
+    "binding": "ASSETS"
+  },
+  // Lets the worker call itself, which OpenNext needs for revalidation.
+  "services": [
+    {
+      "binding": "WORKER_SELF_REFERENCE",
+      "service": "lol-tft-challenges"
+    }
+  ],
+  "observability": {
+    "enabled": true
+  }
+}
