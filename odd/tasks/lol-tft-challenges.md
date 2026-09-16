@@ -69,7 +69,9 @@ Three constraints decide the architecture:
 - **TDD mode: strict**, resolved from the project CLAUDE.md directive "Strict TDD Mode: enabled".
   Observed RED before implementation, then GREEN, then refactor. No invented test evidence.
 - **Test runner: Vitest** (`pnpm test`), installed in T3. Playwright (`pnpm test:e2e`) from T12.
-- Typecheck: `pnpm typecheck`
+- Typecheck: `pnpm typecheck` — runs `next typegen && tsc --noEmit`. The typegen step is not
+  optional: Next 16 generates `LayoutProps` and friends into `.next/types`, so a bare `tsc
+  --noEmit` fails on a clean checkout.
 - Lint: `pnpm lint`
 - Build: `pnpm build`
 
@@ -77,9 +79,11 @@ Until T3 lands there is no runner, so tasks before it are verified by build and 
 
 ## Tasks
 
-- [ ] **T1 — Scaffold.** Next.js 16 + TypeScript strict via pnpm. `.gitignore`, `README`,
-      baseline `tsconfig` with strict and `noUncheckedIndexedAccess`.
-      *Check:* `pnpm build` and `pnpm typecheck` pass.
+- [x] **T1 — Scaffold.** Next.js 16.3.5, React 19.2.8, Tailwind 4, TypeScript strict plus
+      `noUncheckedIndexedAccess`, via pnpm. Scaffolded into a temp subdirectory and moved up,
+      because `create-next-app` refuses a directory holding files it does not recognise; the
+      generated `.gitignore` was merged into the existing one rather than replacing it.
+      *Observed:* `pnpm typecheck` exit 0, `pnpm build` exit 0, `pnpm lint` exit 0.
 - [ ] **T2 — Cloudflare target.** Add `@opennextjs/cloudflare` and `wrangler.jsonc`. Deploy the
       empty app to a `workers.dev` subdomain.
       *Check:* deployed URL returns 200.
@@ -143,6 +147,8 @@ Until T3 lands there is no runner, so tasks before it are verified by build and 
 
 ## Progress
 
-Started 2026-09-16. Repository initialized on `main`; no commits yet. No tasks complete.
+Started 2026-09-16. Repository on `main`.
 
-**Next step:** T1.
+- **T1 complete.** Next.js 16.3.5 scaffold in place; typecheck, build and lint all pass.
+
+**Next step:** T2 — add `@opennextjs/cloudflare` and `wrangler.jsonc`, deploy to `workers.dev`.
