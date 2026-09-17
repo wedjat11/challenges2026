@@ -93,15 +93,18 @@ Until T3 lands there is no runner, so tasks before it are verified by build and 
       because `create-next-app` refuses a directory holding files it does not recognise; the
       generated `.gitignore` was merged into the existing one rather than replacing it.
       *Observed:* `pnpm typecheck` exit 0, `pnpm build` exit 0, `pnpm lint` exit 0.
-- [ ] **T2 — Cloudflare target.** *Partial: configured and verified locally, deploy blocked.*
-      `@opennextjs/cloudflare` 1.20.6 and `wrangler` 4.133.0 installed; `wrangler.jsonc`,
-      `open-next.config.ts` and `initOpenNextCloudflareForDev()` in place.
+- [x] **T2 — Cloudflare target.** `@opennextjs/cloudflare` 1.20.6 and `wrangler` 4.133.0;
+      `wrangler.jsonc`, `open-next.config.ts` and `initOpenNextCloudflareForDev()` in place.
+      **Live at <https://lol-tft-challenges.lol-tft-challenges.workers.dev>**
       *Observed:* `opennextjs-cloudflare build` exit 0 producing `.open-next/worker.js`; the
-      worker served `GET / 200 OK` under local `workerd`; `pnpm typecheck`, `pnpm lint` and
-      `pnpm build` all exit 0.
-      *Blocked:* `wrangler whoami` reports not authenticated. Deploying needs an interactive
-      `wrangler login` OAuth flow, which is the repository owner's to run.
-      *Remaining check:* deployed `workers.dev` URL returns 200.
+      worker served `GET / 200 OK` under local `workerd`; after the owner ran `wrangler login`,
+      `pnpm run deploy` exit 0 and the deployed URL returned **200, 11908 bytes** — byte-identical
+      to what local `workerd` served. Worker startup 33 ms.
+      *Note:* the deploy printed "You need to register a workers.dev subdomain before publishing
+      to workers.dev", but the URL resolves and serves correctly. Harmless so far; worth a second
+      look if the URL ever stops resolving.
+      *Gotcha:* use `pnpm run deploy`, not `pnpm deploy` — the latter is pnpm's own workspace
+      deploy command and will not run this script.
 - [x] **T3 — Test harness.** Vitest 5.0.1 in `vitest.config.mts`, node environment, specs matched
       at `src/**/*.test.ts`, `@/*` resolved through `resolve.tsconfigPaths`. Scripts `pnpm test`
       and `pnpm test:watch`.
@@ -171,9 +174,23 @@ Until T3 lands there is no runner, so tasks before it are verified by build and 
 - [ ] **T12 — Challenge UI.** Create, browse, join and view a challenge. Playwright covers the
       create-then-join flow.
       *Check:* `pnpm test:e2e` passes.
-- [ ] **T13 — Legal pages.** Terms of Service, Privacy Policy, and the mandatory Riot disclaimer
-      in the footer.
-      *Check:* pages reachable and linked from the footer.
+- [x] **T13 — Legal pages.** *Pulled forward from after T12, because the Riot production key
+      review needs a live site with these pages and that review takes one to three weeks.*
+      `/terms` and `/privacy`, a `SiteFooter` carrying the Riot disclaimer and both links on every
+      page, and `src/lib/legal.ts` holding the disclaimer text and operator details.
+      *Slightly beyond the task as written:* the landing page replaced the create-next-app
+      template. Riot's review requires the site to show what the product does, which the template
+      did not. It is not the real product UI — that is still T12.
+      *Observed RED:* `legal.test.ts` failed on the missing module, exit 1.
+      *Observed GREEN:* 41 passed, exit 0; typecheck, lint, build exit 0.
+      *Verified in production* after deploy: `/` 200, `/terms` 200, `/privacy` 200; the Riot
+      disclaimer string present on all three; `href="/terms"` and `href="/privacy"` present in the
+      footer.
+      **Not launch-ready.** `unresolvedPlaceholders()` still reports `name`, `contactEmail` and
+      `jurisdiction`. They render as visible "TO BE COMPLETED" text on the live pages, deliberately,
+      so nobody mistakes the pages for finished. Riot will reject the application while they stand.
+      **Not legal advice.** Written to be honest about what the service actually collects and does,
+      not reviewed by a lawyer.
 - [ ] **T14 — Launch prep.** Buy the domain, point it at the Worker, apply for the Riot production
       key.
       *Check:* Riot ownership-verification string served from the live domain.
@@ -205,9 +222,8 @@ Started 2026-09-16. Repository on `main`.
 
 - **T1 complete.** Next.js 16.3.5 scaffold in place; typecheck, build and lint all pass.
   Committed as `b4b4122`.
-- **T2 partial.** Cloudflare target configured and proven locally — the OpenNext build produces
-  a worker that serves 200 under `workerd`. The deploy step is blocked on an interactive
-  `wrangler login`, which only the repository owner can run.
+- **T2 complete.** Deployed and live at
+  <https://lol-tft-challenges.lol-tft-challenges.workers.dev>, returning 200.
 - **T3 complete.** Vitest harness running; RED observed twice and GREEN at 3 passing specs. The
   first domain module, `src/domain/game.ts`, is in place.
 - **T4 complete.** Match and rule types landed, 22 specs passing. The rule model was corrected
@@ -216,17 +232,30 @@ Started 2026-09-16. Repository on `main`.
 - **T5 complete.** `evaluate` landed, 36 specs passing. The domain layer is now finished and
   fully tested without a Riot key, a database or a network — which was the point of building it
   first.
+- **T13 complete (pulled forward).** Legal pages live and verified in production, 41 specs
+  passing. Operator placeholders still unfilled, so the Riot production key application cannot
+  be submitted yet.
 
 **Blocked, needing the owner:**
 
-1. `wrangler login`, to finish T2's deploy.
-2. Re-authenticate the `claude` CLI. The native review lineage `review-15df7d00d361b982` is open
+1. Create `.env.local` (gitignored, never committed) holding `RIOT_API_KEY`, `RIOT_REGION` and
+   `RIOT_PLATFORM`. The agent cannot write `.env*` files — a permission rule blocks it, which is
+   the correct guard. **A key was pasted into chat on 2026-09-16 and must be regenerated.**
+2. Fill in `OPERATOR` in `src/lib/legal.ts`: operator name, contact email, jurisdiction. Riot
+   rejects a production key application while these read "TO BE COMPLETED".
+3. Re-authenticate the `claude` CLI. The native review lineage `review-15df7d00d361b982` is open
    at state `reviewing` for the T1 candidate; its reviewer subprocess fails with a 401 on an
-   invalid OAuth token, so no receipt exists. This does not block T3.
+   invalid OAuth token, so no receipt exists. That candidate is now several commits stale, so
+   starting a fresh review is better than resuming it. Blocks nothing.
+
+**Unblocked 2026-09-16:** `wrangler login` done, T2 deployed and serving.
+
+**Timing note:** the Riot **production** key — the one that takes one to three weeks — requires a
+live site with Terms of Service and Privacy Policy. The site is now live, so finishing T13 is
+what actually starts that clock. Consider pulling T13 forward ahead of T9–T12.
 
 **Scope narrowed 2026-09-16:** League of Legends only for v1; TFT deferred to v2. No completed
 work was invalidated — T1 and T2 are game-agnostic infrastructure.
 
 **Next step:** T6 — `MatchProvider` port and `RiotApiAdapter`, RED first against recorded
-fixtures. This is the first task that needs a Riot API key, so a personal key is required before
-the adapter can be checked against real response shapes.
+fixtures. Needs `.env.local` in place first; the key never enters source, tests or commits.
