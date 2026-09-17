@@ -11,6 +11,15 @@
     "directory": ".open-next/assets",
     "binding": "ASSETS"
   },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "lol-tft-challenges",
+      "database_id": "e9451396-09aa-4393-a2b3-f8247664ca7d",
+      // drizzle-kit writes here; `wrangler d1 migrations apply` reads from it.
+      "migrations_dir": "drizzle"
+    }
+  ],
   // Lets the worker call itself, which OpenNext needs for revalidation.
   "services": [
     {

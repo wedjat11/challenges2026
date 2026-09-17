@@ -186,9 +186,24 @@ Until T3 lands there is no runner, so tasks before it are verified by build and 
       - Fixture at `src/adapters/riot/__fixtures__/match-ranked-solo.json`, trimmed to two
         participants with PUUIDs replaced by obvious fakes; verified the real PUUID does not
         appear anywhere in the repo.
-- [ ] **T7 — Persistence.** D1 schema and Drizzle migrations for `users`, `riot_accounts`,
-      `challenges`, `participants`, `progress`, `match_cache`, `poll_state`.
-      *Check:* migrations apply to a local D1; typecheck passes.
+- [x] **T7 — Persistence.** Drizzle schema in `src/db/schema.ts` for all seven tables, plus
+      `src/domain/rule-codec.ts` validating `rules_json` with Zod on the way in and out.
+      D1 database `lol-tft-challenges` created (id `e9451396-09aa-4393-a2b3-f8247664ca7d`,
+      region WNAM) and bound as `DB`; `cloudflare-env.d.ts` now types it as `D1Database`.
+      *Observed RED:* the codec suite failed on the missing module, exit 1.
+      *Observed GREEN:* 83 passed, exit 0; typecheck, lint, build exit 0.
+      *Migration applied and verified twice:* `--local` then `--remote`, 16 commands each, and
+      all seven tables confirmed present by querying `sqlite_master` on both.
+      *`rules_json` stores the corrected T4 shape* — a target plus a criteria list — not the four
+      rule variants the original plan described. Validated rather than trusted: a text column
+      accepts anything, and an unrecognised criterion dropped in silence would leave a rule with
+      fewer conditions, quietly making every match count.
+      *Schema decisions:* `riot_accounts.puuid` is unique table-wide, so the same Riot account
+      cannot be claimed by two users; `verified` is false everywhere and exists so RSO needs no
+      migration; `match_cache` is keyed by match AND player, because one game yields a different
+      summary per participant; `poll_state.nextPollAfter` exists so idle players can be backed off
+      rather than polled at the same cadence as someone mid-session.
+      *Scripts:* `pnpm db:generate`, `pnpm db:migrate:local`, `pnpm db:migrate`.
 - [ ] **T8 — Repository adapter.** `ChallengeRepository` port + `DrizzleD1Adapter`.
       *Check:* Vitest RED then GREEN against local D1.
 - [ ] **T9 — Auth.** Auth.js with Discord provider, session wired through the App Router.
@@ -270,6 +285,7 @@ Started 2026-09-16. Repository on `main`.
   be submitted yet.
 - **T6 complete.** Riot adapter done, 74 specs passing, and verified once against the live API.
   Three things were learned from real responses that documentation had wrong — see the task.
+- **T7 complete.** Schema and migrations applied to both local and remote D1, 83 specs passing.
 
 **Blocked, needing the owner:**
 
@@ -292,5 +308,4 @@ what actually starts that clock. Consider pulling T13 forward ahead of T9–T12.
 **Scope narrowed 2026-09-16:** League of Legends only for v1; TFT deferred to v2. No completed
 work was invalidated — T1 and T2 are game-agnostic infrastructure.
 
-**Next step:** T7 — D1 schema and Drizzle migrations. Note that `challenges.rules_json` must
-store the corrected rule shape from T4: a target plus a criteria list, not four rule variants.
+**Next step:** T8 — the `ChallengeRepository` port and its Drizzle/D1 adapter, RED first.
