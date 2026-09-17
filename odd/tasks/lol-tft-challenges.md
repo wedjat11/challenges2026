@@ -151,11 +151,41 @@ Until T3 lands there is no runner, so tasks before it are verified by build and 
       overlapping challenges and double-counting would complete a challenge early.
       *Observed RED:* suite failed on the missing module, exit 1.
       *Observed GREEN:* 36 passed, exit 0; `pnpm typecheck`, `pnpm lint`, `pnpm build` exit 0.
-- [ ] **T6 — MatchProvider port + Riot adapter.** Port defined by the domain; `RiotApiAdapter`
+- [x] **T6 — MatchProvider port + Riot adapter.** Port defined by the domain; `RiotApiAdapter`
       implements it, reading `X-App-Rate-Limit` and `X-Method-Rate-Limit` off responses and
       honouring `Retry-After` on 429. Correct platform vs regional routing per endpoint:
       `account-v1` and `match-v5` are regional, `summoner-v4` and `league-v4` are platform.
       *Check:* Vitest against recorded fixtures; no live calls in tests.
+      **Complete.** `rate-limit.ts` (header parsing, tightest-bucket headroom, `Retry-After`),
+      `match-mapper.ts` (Riot payload → `MatchSummary`), `src/domain/ports/match-provider.ts`
+      (the port, stated in the domain's terms) and `riot-api.ts` (`createRiotApi`, the HTTP
+      client). 74 specs passing; typecheck, lint and build exit 0.
+      *Verified against the live API once*, via a throwaway file outside the suite, then deleted:
+      real `resolvePuuid`, `listMatchIds`, `fetchMatch` mapping, and a 404 for an unknown Riot ID.
+      The committed suite makes no live calls.
+      *Contract narrowed mid-task.* `fetch` was first typed as `typeof globalThis.fetch`, which
+      typechecked only against the platform's full overloaded signature — no honest test double
+      could satisfy it, and the suite only passed because of a cast. Replaced with `HttpFetch` and
+      `HttpResponse`, declaring the four things this client actually reads. The real `fetch` still
+      satisfies it structurally, and the cast is gone.
+      *Retry policy:* only 429 is retried, bounded by `maxRetries` (default 3). A 404 means the
+      Riot ID does not exist and a 403 means the key is bad; retrying either just burns budget.
+      Errors report status and nothing else, so the key can never reach a log line.
+
+      *Recorded from live calls against `ThothMon#LAN` on 2026-09-16, all 200:*
+      - Real headers are `x-app-rate-limit: 100:120,20:1` and, for match-v5,
+        `x-method-rate-limit: 2000:10` — **not** the 500:10 in the documentation found earlier.
+        Reading limits off responses rather than hardcoding them was the right call, and the
+        bucket order is reversed from what was assumed, so buckets must be matched by window.
+      - **`lane` and `role` are unreliable legacy fields.** In the recorded match the tracked
+        participant is `teamPosition: "TOP"` and `lane: "JUNGLE"` simultaneously. The mapper reads
+        `teamPosition`; a spec pins this so nobody "fixes" it later.
+      - PUUIDs are now 78 characters, not the older 36.
+      - `gameEndedInEarlySurrender` exists and is a more precise remake signal than duration.
+        Not used yet — T5's duration floor already covers remakes. See open decisions.
+      - Fixture at `src/adapters/riot/__fixtures__/match-ranked-solo.json`, trimmed to two
+        participants with PUUIDs replaced by obvious fakes; verified the real PUUID does not
+        appear anywhere in the repo.
 - [ ] **T7 — Persistence.** D1 schema and Drizzle migrations for `users`, `riot_accounts`,
       `challenges`, `participants`, `progress`, `match_cache`, `poll_state`.
       *Check:* migrations apply to a local D1; typecheck passes.
@@ -212,6 +242,9 @@ Until T3 lands there is no runner, so tasks before it are verified by build and 
 - [ ] Should remakes and early surrenders count towards a challenge? T5 currently excludes
       anything under 5 minutes, to stop "play 20 games" being farmed by remaking. Assumed, not
       confirmed — change `MINIMUM_COUNTED_DURATION_SECONDS` if you disagree.
+      T6 found that Riot also sends `gameEndedInEarlySurrender`, which identifies a remake exactly
+      rather than by proxy. Worth adopting if this rule stays, but it means adding a field to
+      `MatchSummary` and a condition to `evaluate`.
 - [ ] Personal goals only, or group competitions with a shared leaderboard?
 - [ ] Monetization intent — changes what Riot requires at registration.
 - [ ] UI language: Spanish, English, or both.
@@ -235,6 +268,8 @@ Started 2026-09-16. Repository on `main`.
 - **T13 complete (pulled forward).** Legal pages live and verified in production, 41 specs
   passing. Operator placeholders still unfilled, so the Riot production key application cannot
   be submitted yet.
+- **T6 complete.** Riot adapter done, 74 specs passing, and verified once against the live API.
+  Three things were learned from real responses that documentation had wrong — see the task.
 
 **Blocked, needing the owner:**
 
@@ -257,5 +292,5 @@ what actually starts that clock. Consider pulling T13 forward ahead of T9–T12.
 **Scope narrowed 2026-09-16:** League of Legends only for v1; TFT deferred to v2. No completed
 work was invalidated — T1 and T2 are game-agnostic infrastructure.
 
-**Next step:** T6 — `MatchProvider` port and `RiotApiAdapter`, RED first against recorded
-fixtures. Needs `.env.local` in place first; the key never enters source, tests or commits.
+**Next step:** T7 — D1 schema and Drizzle migrations. Note that `challenges.rules_json` must
+store the corrected rule shape from T4: a target plus a criteria list, not four rule variants.
