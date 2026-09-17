@@ -204,8 +204,25 @@ Until T3 lands there is no runner, so tasks before it are verified by build and 
       summary per participant; `poll_state.nextPollAfter` exists so idle players can be backed off
       rather than polled at the same cadence as someone mid-session.
       *Scripts:* `pnpm db:generate`, `pnpm db:migrate:local`, `pnpm db:migrate`.
-- [ ] **T8 — Repository adapter.** `ChallengeRepository` port + `DrizzleD1Adapter`.
-      *Check:* Vitest RED then GREEN against local D1.
+- [x] **T8 — Repository adapter.** `ChallengeRepository` port in `src/domain/ports/` and
+      `createChallengeRepository` in `src/adapters/db/`. Rules cross the boundary as `Rule[]`,
+      never as JSON — serialisation stays the adapter's problem.
+      *Observed RED:* suite failed on the missing module, exit 1.
+      *Observed GREEN:* 96 passed, exit 0; typecheck, lint, build exit 0.
+      *Tested against SQLite in memory*, applying the same `drizzle/0000_initial_schema.sql` that
+      D1 runs, rather than against D1 itself. D1 is SQLite so the SQL under test is the SQL that
+      ships; what this does not cover is driver-level behaviour. Stated rather than glossed over.
+      *The adapter is typed by what it uses* — `BaseSQLiteDatabase<"async", unknown, typeof
+      schema>` — not pinned to `DrizzleD1Database`. Pinning would have forced the tests to cast,
+      and a cast in a test is a lie about what the code accepts. Same lesson as `HttpFetch` in T6.
+      *A type-level assertion pins the production path:* a real D1 Drizzle instance must satisfy
+      `ChallengeDb`, checked by `tsc`. Verified the assertion actually bites by breaking its
+      schema generic on purpose — typecheck failed — then restoring it. An assertion that cannot
+      fail is worse than none.
+      *Behaviour pinned by specs:* joining twice is a no-op rather than an error or a duplicate
+      row; `saveProgress` upserts so repeated polls overwrite instead of accumulating; and
+      `listActiveAt` treats both window bounds as inclusive, matching `evaluate` — if storage
+      disagreed, a challenge would stop being polled on the day it ends.
 - [ ] **T9 — Auth.** Auth.js with Discord provider, session wired through the App Router.
       *Check:* sign-in and sign-out work against the deployed preview.
 - [ ] **T10 — Riot ID linking.** Resolve `gameName#tagLine` to a PUUID via account-v1 and store
@@ -286,6 +303,7 @@ Started 2026-09-16. Repository on `main`.
 - **T6 complete.** Riot adapter done, 74 specs passing, and verified once against the live API.
   Three things were learned from real responses that documentation had wrong — see the task.
 - **T7 complete.** Schema and migrations applied to both local and remote D1, 83 specs passing.
+- **T8 complete.** Challenge repository behind a port, 96 specs passing.
 
 **Blocked, needing the owner:**
 
@@ -308,4 +326,5 @@ what actually starts that clock. Consider pulling T13 forward ahead of T9–T12.
 **Scope narrowed 2026-09-16:** League of Legends only for v1; TFT deferred to v2. No completed
 work was invalidated — T1 and T2 are game-agnostic infrastructure.
 
-**Next step:** T8 — the `ChallengeRepository` port and its Drizzle/D1 adapter, RED first.
+**Next step:** T9 — Auth.js with the Discord provider, wired through the App Router.
+This is the first task needing Discord application credentials, which only the owner can create.
