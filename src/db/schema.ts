@@ -163,6 +163,17 @@ export const pollState = sqliteTable(
     lastPolledAt: integer("last_polled_at", { mode: "timestamp_ms" }),
     nextPollAfter: integer("next_poll_after", { mode: "timestamp_ms" }),
     failureCount: integer("failure_count").notNull().default(0),
+    /**
+     * The earliest match `startTime` this player's history has actually been
+     * fetched from. `null` means nothing has ever been fetched.
+     *
+     * Paging normally picks up at `lastMatchId`, but that boundary says
+     * nothing about how far *back* it goes — joining a challenge whose
+     * `startsAt` is earlier than everything fetched so far needs a backfill
+     * from the new, earlier start, which `lastMatchId` alone cannot express.
+     * See `needsBackfill` in domain/polling.ts.
+     */
+    coveredFrom: integer("covered_from", { mode: "timestamp_ms" }),
   },
   (table) => [
     primaryKey({ columns: [table.puuid, table.game] }),

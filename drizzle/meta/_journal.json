@@ -8,6 +8,13 @@
       "when": 1789610738665,
       "tag": "0000_initial_schema",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1789769606377,
+      "tag": "0001_poll_state_covered_from",
+      "breakpoints": true
     }
   ]
 }

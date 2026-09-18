@@ -315,6 +315,64 @@ Until T3 lands there is no runner, so tasks before it are verified by build and 
       progress. Never loop players inline in the cron handler.
       *Check:* Vitest on the due-player selector and the incremental fetch; observed queue drain
       in a deployed preview.
+      *Plan (2026-09-18), on `feat/polling-pipeline` stacked on `feat/riot-id-linking`:*
+      Verified first: Cloudflare Queues is on the Workers Free plan with 10,000 operations per
+      day (send, read and ack each count), so cadence is a budget lever, not a detail; and
+      OpenNext's generated worker exports only `fetch`, so a custom `worker.ts` re-exports it
+      and adds `scheduled` and `queue`. Inside those handlers `getCloudflareContext` does not
+      work (it is populated per Next request), so they bind `env.DB` and `env.RIOT_API_KEY`
+      directly. Work units: **(A)** `src/domain/polling.ts` — `idsNewerThan` (Riot lists newest
+      first; stop at the last seen id) and `nextPollAfter` (15 min after new matches, growing
+      to a 6 h cap while idle, exponential on failures); `PollingRepository` port and Drizzle
+      adapter — due players who participate in an active challenge, poll state, match cache;
+      `listActiveForAccount` on `ChallengeRepository`; use cases `enqueueDuePlayers` (claims a
+      lease on `next_poll_after` when enqueuing so the next tick cannot double-enqueue) and
+      `pollPlayer` (incremental fetch, cache, `evaluate` per challenge, `saveProgress`; Riot
+      failures are recorded with backoff and acked, never thrown). **(B)** `worker.ts`,
+      `wrangler.jsonc` (`main`, `triggers.crons`, queue producer and consumer), the queue itself,
+      builds. The manual queue-drain check needs `RIOT_API_KEY` on the Worker.
+      **Code complete, manual check pending** (2026-09-18), on `feat/polling-pipeline`.
+      *Observed RED:* every new suite failed on its missing module or a failing assertion
+      first, exit 1. *Observed GREEN:* 275 passed, exit 0; typecheck, lint, `next build` and the
+      worker build exit 0. No import from `src/adapters` under `src/application` or `src/domain`.
+      *Local dry run:* `wrangler dev --test-scheduled` plus a request to
+      `/cdn-cgi/local/scheduled` ran the cron handler against the local D1 and logged
+      `enqueued 0`.
+      *Infrastructure created:* queue `lol-tft-challenges-poll` on the Cloudflare account.
+      *Migration:* `drizzle/0001_poll_state_covered_from.sql` adds `poll_state.covered_from`.
+      **Applied locally only. `pnpm db:migrate` must run before the first deploy of this
+      branch**, or the consumer fails on the missing column.
+      *Reviewed natively four times, all approved and acknowledged* (`review-d3b63bb83a11e44d`,
+      `review-72ba4e9b97694e2a`, `review-8658502178f91e34`, `review-441fc447d5cab160`). Three
+      correction passes came out of them, each with specs:
+      - Idle backoff doubled the lease instead of the real interval, because enqueuing
+        overwrites `next_poll_after`; it now doubles the elapsed time since the last poll.
+      - One page of 20 ids lost anything older; `listMatchIds` gained `start` and `endTime`,
+        and polling pages up to `MAX_PAGES` (5).
+      - Any failure outside the provider call left the player stuck on the lease and
+        re-enqueued every tick; the whole poll is now one try/catch that records backoff.
+      - The lease was shorter than a worst-case drain; lease 60 min and batch 10, with the
+        arithmetic in the doc comment. An expired lease only duplicates a poll.
+      - One `riot_accounts` row with an unknown platform threw for the whole cron tick;
+        `listDue` filters by known platforms in SQL.
+      - Joining an earlier-starting challenge left matches between its start and
+        `last_match_id` unfetched; `covered_from` records how far back history is covered, a
+        backward pass with `endTime` fills the gap, and a truncated pass records the oldest
+        match it actually fetched rather than claiming full coverage.
+      - Matches are cached one by one as fetched and every poll skips ids already cached,
+        so a mid-loop failure keeps its progress.
+      *Extracted for testability:* the consumer loop lives in
+      `src/application/consume-poll-batch.ts`; `worker.ts` is glue.
+      *Build gotcha, recorded in `types/open-next-worker.d.ts`:* `opennextjs-cloudflare build`
+      wipes `.open-next` before its own `next build`, which typechecks `worker.ts`; the
+      generated worker is imported through a path alias with a fallback declaration so a
+      clean build does not fail on a file that does not exist yet.
+      *Accepted as-is, for a later pass:* a forward pass truncated at 100 new matches with an
+      existing `last_match_id` skips the older ones (unreachable under the 6 h cap; the
+      `MAX_PAGES` comment states the trade); leasing writes the whole `poll_state` row rather
+      than one column, so a lease expiring mid-poll can overwrite a fresher row.
+      *Not exercised yet:* `wrangler deploy` bundling of the tsconfig aliases in `worker.ts`
+      (`wrangler dev` bundled them fine).
 - [ ] **T12 — Challenge UI.** Create, browse, join and view a challenge. Playwright covers the
       create-then-join flow.
       *Check:* `pnpm test:e2e` passes.
@@ -400,9 +458,12 @@ Started 2026-09-16. Repository on `main`.
 - **T9 code complete, committed as `7800236` on `feat/discord-auth`, PR #2 open.** 108 specs
   passing, all builds green, independently verified with no findings. The manual sign-in check
   waits on Discord credentials only the owner can create.
-- **T10 code complete, uncommitted on `feat/riot-id-linking` (stacked on `feat/discord-auth`).**
-  163 specs passing, all builds green, three native reviews approved and acknowledged. The
-  manual linking check waits on `RIOT_API_KEY` and the Discord secrets on the Worker.
+- **T10 code complete, committed as `bc0e621` on `feat/riot-id-linking`, PR #3 open** (base
+  `feat/discord-auth`). 163 specs, all builds green, three native reviews approved. The manual
+  linking check waits on `RIOT_API_KEY` and the Discord secrets on the Worker.
+- **T11 code complete, uncommitted on `feat/polling-pipeline` (stacked on
+  `feat/riot-id-linking`).** 275 specs, all builds green, four native reviews approved and
+  acknowledged, cron dry run observed locally. Queue created; remote migration pending.
 
 **Blocked, needing the owner:**
 
@@ -433,9 +494,9 @@ what actually starts that clock. Consider pulling T13 forward ahead of T9–T12.
 **Scope narrowed 2026-09-16:** League of Legends only for v1; TFT deferred to v2. No completed
 work was invalidated — T1 and T2 are game-agnostic infrastructure.
 
-**Next step:** commit T10 on `feat/riot-id-linking` and open its PR against
-`feat/discord-auth`. Once the owner sets the three Discord secrets and `RIOT_API_KEY` on the
-Worker, deploy and run the manual checks for T9 (sign-in/out) and T10 (link a Riot ID), then
-tick both. After that, T11 — the polling pipeline — which also needs the two open decisions
-raised by the T10 review (squatting, per-user throttle) settled before it depends on
-`riot_accounts` rows.
+**Next step:** commit T11 on `feat/polling-pipeline` and open its PR against
+`feat/riot-id-linking` (merge order: #2, #3, then T11). Before the first deploy of T11: set the
+three Discord secrets and `RIOT_API_KEY` on the Worker, run `pnpm db:migrate` for the
+`covered_from` column, then `pnpm run deploy`; check that the cron fires and the queue drains
+in the Cloudflare dashboard, and run the manual checks for T9 and T10. Then T12, the challenge
+UI. The open decisions on squatting and per-user throttling still stand.

@@ -94,15 +94,18 @@ export function createRiotApi(config: RiotApiConfig): MatchProvider {
 
     async listMatchIds(
       puuid: string,
-      options: { count?: number; startTime?: Date } = {},
+      options: { count?: number; start?: number; startTime?: Date; endTime?: Date } = {},
     ): Promise<string[]> {
       const query = new URLSearchParams({
-        start: "0",
+        start: String(options.start ?? 0),
         count: String(options.count ?? DEFAULT_MATCH_COUNT),
       });
       if (options.startTime) {
         // Riot expects whole seconds here, not milliseconds.
         query.set("startTime", String(Math.floor(options.startTime.getTime() / 1000)));
+      }
+      if (options.endTime) {
+        query.set("endTime", String(Math.floor(options.endTime.getTime() / 1000)));
       }
 
       return get<string[]>(
