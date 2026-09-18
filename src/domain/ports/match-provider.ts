@@ -34,8 +34,21 @@ export type MatchProvider = {
    *
    * `startTime` exists so polling fetches only what is new. Re-reading a
    * player's whole history on every cycle is what exhausts the rate limit.
+   * `start` is the paging offset into that same newest-first list — Riot's
+   * own pagination parameter — so a caller that found more new matches than
+   * fit in one page can page through the rest (see `pollPlayer`, which pages
+   * up to `MAX_PAGES` times).
+   *
+   * `endTime` bounds the same window from the other side: `pollPlayer`'s
+   * backward pass uses it (paired with `startTime`) to page only the slice
+   * between the challenge's own start and however far back coverage already
+   * reaches (`coveredFrom`), instead of re-walking ground already covered.
+   * Omitted, as `startTime` is, when there is nothing to bound.
    */
-  listMatchIds(puuid: string, options?: { count?: number; startTime?: Date }): Promise<string[]>;
+  listMatchIds(
+    puuid: string,
+    options?: { count?: number; start?: number; startTime?: Date; endTime?: Date },
+  ): Promise<string[]>;
 
   /** One match, reduced to the facts a challenge rule can ask about. */
   fetchMatch(matchId: string, puuid: string): Promise<MatchSummary>;

@@ -198,3 +198,60 @@ describe("finding what the poller should work on", () => {
     expect(await repository.listActiveAt(WINDOW.endsAt)).toHaveLength(1);
   });
 });
+
+describe("finding what one account should be polled for", () => {
+  it("includes a challenge the account joined that is active now", async () => {
+    await repository.create(aChallenge());
+    await repository.join("challenge-1", "account-1");
+
+    const active = await repository.listActiveForAccount(
+      "account-1",
+      new Date("2026-09-16T12:00:00Z"),
+    );
+
+    expect(active.map((c) => c.id)).toEqual(["challenge-1"]);
+  });
+
+  it("excludes a challenge the account has not joined", async () => {
+    await repository.create(aChallenge());
+
+    const active = await repository.listActiveForAccount(
+      "account-1",
+      new Date("2026-09-16T12:00:00Z"),
+    );
+
+    expect(active).toEqual([]);
+  });
+
+  it("excludes a joined challenge outside its window", async () => {
+    await repository.create(aChallenge());
+    await repository.join("challenge-1", "account-1");
+
+    expect(
+      await repository.listActiveForAccount("account-1", new Date("2026-09-13T00:00:00Z")),
+    ).toEqual([]);
+    expect(
+      await repository.listActiveForAccount("account-1", new Date("2026-09-22T00:00:00Z")),
+    ).toEqual([]);
+  });
+
+  it("includes a joined challenge exactly on its boundaries", async () => {
+    await repository.create(aChallenge());
+    await repository.join("challenge-1", "account-1");
+
+    expect(await repository.listActiveForAccount("account-1", WINDOW.startsAt)).toHaveLength(1);
+    expect(await repository.listActiveForAccount("account-1", WINDOW.endsAt)).toHaveLength(1);
+  });
+
+  it("does not return a challenge only a different account joined", async () => {
+    await repository.create(aChallenge());
+    await repository.join("challenge-1", "account-2");
+
+    const active = await repository.listActiveForAccount(
+      "account-1",
+      new Date("2026-09-16T12:00:00Z"),
+    );
+
+    expect(active).toEqual([]);
+  });
+});

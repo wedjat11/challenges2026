@@ -44,4 +44,12 @@ export type ChallengeRepository = {
 
   /** Challenges whose window contains `now`, for the poller to work through. */
   listActiveAt(now: Date): Promise<StoredChallenge[]>;
+
+  /**
+   * Challenges the given Riot account participates in, whose window contains
+   * `now`. What `pollPlayer` asks to find out which rules to evaluate for one
+   * player, without loading every other account's challenges to filter them
+   * out in application code.
+   */
+  listActiveForAccount(riotAccountId: string, now: Date): Promise<StoredChallenge[]>;
 };

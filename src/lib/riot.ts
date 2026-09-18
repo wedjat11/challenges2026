@@ -22,8 +22,9 @@ export function matchProviderFor(region: AccountRegion): MatchProvider {
     // This factory backs the interactive link-account server action: a 429
     // here must surface as `riot_unavailable` immediately rather than stall
     // the request behind the adapter's default of 3 retries with
-    // Retry-After sleeps. T11's polling pipeline will build its own provider
-    // with retries, where waiting out a rate limit is fine.
+    // Retry-After sleeps. The polling pipeline (worker.ts's `queue` handler)
+    // builds its own provider with retries instead, where waiting out a rate
+    // limit is fine.
     maxRetries: 0,
   });
 }

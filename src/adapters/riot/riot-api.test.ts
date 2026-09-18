@@ -93,6 +93,39 @@ describe("incremental fetching", () => {
     await api.listMatchIds(TRACKED);
     expect(calls[0]?.url).not.toContain("startTime");
   });
+
+  it("asks only for matches up to the given time", async () => {
+    const { fetch, calls } = fakeFetch([{ status: 200, body: [] }]);
+    const api = createRiotApi({ ...CONFIG, fetch });
+
+    await api.listMatchIds(TRACKED, { endTime: new Date("2026-09-16T00:00:00Z") });
+    // Riot expects whole seconds here too, not milliseconds.
+    expect(calls[0]?.url).toContain("endTime=1789516800");
+  });
+
+  it("omits endTime when none is given", async () => {
+    const { fetch, calls } = fakeFetch([{ status: 200, body: [] }]);
+    const api = createRiotApi({ ...CONFIG, fetch });
+
+    await api.listMatchIds(TRACKED);
+    expect(calls[0]?.url).not.toContain("endTime");
+  });
+
+  it("asks for a later page when start is given", async () => {
+    const { fetch, calls } = fakeFetch([{ status: 200, body: [] }]);
+    const api = createRiotApi({ ...CONFIG, fetch });
+
+    await api.listMatchIds(TRACKED, { start: 40 });
+    expect(calls[0]?.url).toContain("start=40");
+  });
+
+  it("defaults start to 0 when none is given", async () => {
+    const { fetch, calls } = fakeFetch([{ status: 200, body: [] }]);
+    const api = createRiotApi({ ...CONFIG, fetch });
+
+    await api.listMatchIds(TRACKED);
+    expect(calls[0]?.url).toContain("start=0");
+  });
 });
 
 describe("fetching a match", () => {

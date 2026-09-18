@@ -1,7 +1,10 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "lol-tft-challenges",
-  "main": ".open-next/worker.js",
+  // A custom entry that re-exports OpenNext's generated `fetch` handler and
+  // adds `scheduled`/`queue` handlers — OpenNext's own worker only exports
+  // `fetch`. See worker.ts for why `getCloudflareContext` cannot be used there.
+  "main": "./worker.ts",
   "compatibility_date": "2026-09-16",
   // nodejs_compat is required by the OpenNext runtime.
   // global_fetch_strictly_public makes fetch() to our own routes go through
@@ -29,5 +32,35 @@
   ],
   "observability": {
     "enabled": true
+  },
+  // Every 5 minutes: enqueueDuePlayers picks whoever is due, bounded by
+  // batchSize, so a short interval does not blow the Queues free-tier budget.
+  "triggers": {
+    "crons": ["*/5 * * * *"]
+  },
+  "queues": {
+    "producers": [
+      {
+        "queue": "lol-tft-challenges-poll",
+        "binding": "POLL_QUEUE"
+      }
+    ],
+    "consumers": [
+      {
+        "queue": "lol-tft-challenges-poll",
+        // Small batches: one bad Riot response should not hold up many players.
+        "max_batch_size": 5,
+        // Seconds to wait for a batch to fill before invoking with fewer
+        // messages than max_batch_size.
+        "max_batch_timeout": 5,
+        // Failures are recorded in poll_state with their own backoff — a
+        // Queue-level retry would poll (and rate-limit) the same player twice.
+        "max_retries": 0,
+        // One consumer invocation at a time: every message shares one Riot
+        // API key, so running batches concurrently would only fight over the
+        // same regional rate limit instead of finishing sooner.
+        "max_concurrency": 1
+      }
+    ]
   }
 }

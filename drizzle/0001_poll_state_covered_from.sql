@@ -1,0 +1,1 @@
+ALTER TABLE `poll_state` ADD `covered_from` integer;

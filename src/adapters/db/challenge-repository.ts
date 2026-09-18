@@ -145,5 +145,21 @@ export function createChallengeRepository(db: ChallengeDb): ChallengeRepository 
 
       return rows.map(toStoredChallenge);
     },
+
+    async listActiveForAccount(riotAccountId: string, now: Date): Promise<StoredChallenge[]> {
+      const rows = await db
+        .select({ challenge: schema.challenges })
+        .from(schema.participants)
+        .innerJoin(schema.challenges, eq(schema.participants.challengeId, schema.challenges.id))
+        .where(
+          and(
+            eq(schema.participants.riotAccountId, riotAccountId),
+            lte(schema.challenges.startsAt, now),
+            gte(schema.challenges.endsAt, now),
+          ),
+        );
+
+      return rows.map((row) => toStoredChallenge(row.challenge));
+    },
   };
 }

@@ -20,7 +20,11 @@
       }
     ],
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      // A non-relative alias, not the literal relative path, so that
+      // types/open-next-worker.d.ts can declare a fallback for when the
+      // target does not exist yet — see that file for why.
+      "@open-next/worker": ["./.open-next/worker.js"]
     }
   },
   "include": [
