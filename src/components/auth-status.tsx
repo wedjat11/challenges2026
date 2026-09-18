@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import { auth, signIn, signOut } from "@/auth";
 
 /**
@@ -47,6 +49,9 @@ export async function AuthStatus() {
         />
       ) : null}
       <span className="text-sm font-medium">{session.user.name}</span>
+      <Link href="/account" className="text-sm text-black/70 underline dark:text-white/70">
+        Your account
+      </Link>
       <button
         type="submit"
         className="rounded-md border border-black/10 px-3 py-1.5 text-sm dark:border-white/15"

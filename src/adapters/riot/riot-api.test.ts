@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 
 import { createRiotApi } from "@/adapters/riot/riot-api";
+import { MatchProviderError } from "@/domain/ports/match-provider";
 
 import rankedSolo from "./__fixtures__/match-ranked-solo.json";
 
@@ -148,6 +149,16 @@ describe("failures", () => {
     await expect(api.resolvePuuid("Nobody", "XXXX")).rejects.toThrow();
     expect(fetch).toHaveBeenCalledTimes(1);
     expect(sleep).not.toHaveBeenCalled();
+  });
+
+  it("throws the port's MatchProviderError carrying the status, so callers can branch without parsing a message", async () => {
+    const { fetch } = fakeFetch([{ status: 404 }]);
+    const api = createRiotApi({ ...CONFIG, fetch });
+
+    const error = await api.resolvePuuid("Nobody", "XXXX").catch((e: unknown) => e);
+
+    expect(error).toBeInstanceOf(MatchProviderError);
+    expect(error).toMatchObject({ status: 404 });
   });
 
   it("never leaks the key in an error message", async () => {

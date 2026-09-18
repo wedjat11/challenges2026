@@ -1,7 +1,7 @@
 import { toMatchSummary } from "@/adapters/riot/match-mapper";
 import { retryAfterMs } from "@/adapters/riot/rate-limit";
 import type { MatchSummary } from "@/domain/match";
-import type { MatchProvider } from "@/domain/ports/match-provider";
+import { MatchProviderError, type MatchProvider } from "@/domain/ports/match-provider";
 
 /**
  * Riot's HTTP client: the one place that knows Riot's hosts, paths and auth.
@@ -32,8 +32,12 @@ export type RiotApiConfig = {
   apiKey: string;
   /** Regional cluster for account-v1 and match-v5: americas, europe, asia. */
   region: string;
-  /** Platform shard for summoner-v4 and league-v4: la1, la2, na1, euw1, … */
-  platform: string;
+  /**
+   * Platform shard for summoner-v4 and league-v4: la1, la2, na1, euw1, …
+   * Optional because nothing in this client reads it yet — every request this
+   * adapter makes today goes to the regional host derived from `region`.
+   */
+  platform?: string;
   fetch?: HttpFetch;
   sleep?: (ms: number) => Promise<void>;
   maxRetries?: number;
@@ -73,9 +77,9 @@ export function createRiotApi(config: RiotApiConfig): MatchProvider {
         continue;
       }
 
-      // Deliberately reports the status and path only. The key must never reach
-      // a log line, and Riot's error bodies can echo request details.
-      throw new Error(`Riot request failed with ${response.status}`);
+      // Deliberately reports the status only. The key must never reach a log
+      // line, and Riot's error bodies can echo request details.
+      throw new MatchProviderError(response.status);
     }
   }
 
