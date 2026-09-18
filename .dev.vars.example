@@ -1,0 +1,11 @@
+# Same values as .env.example, read by `wrangler dev` / `next dev` under
+# initOpenNextCloudflareForDev() instead of the plain Next.js env loader.
+
+# Auth.js signing secret. Generate with `npx auth secret` or `openssl rand -base64 33`.
+AUTH_SECRET=
+
+# Discord OAuth application client id, from the Discord Developer Portal.
+AUTH_DISCORD_ID=
+
+# Discord OAuth application client secret, from the Discord Developer Portal.
+AUTH_DISCORD_SECRET=

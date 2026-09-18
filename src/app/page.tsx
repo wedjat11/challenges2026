@@ -1,3 +1,4 @@
+import { AuthStatus } from "@/components/auth-status";
 import { SITE_NAME } from "@/lib/legal";
 
 /**
@@ -8,7 +9,10 @@ import { SITE_NAME } from "@/lib/legal";
 export default function Home() {
   return (
     <main className="mx-auto w-full max-w-3xl px-6 py-24">
-      <h1 className="text-4xl font-semibold tracking-tight">{SITE_NAME}</h1>
+      <div className="flex items-center justify-between gap-6">
+        <h1 className="text-4xl font-semibold tracking-tight">{SITE_NAME}</h1>
+        <AuthStatus />
+      </div>
 
       <p className="mt-6 text-lg leading-relaxed text-black/70 dark:text-white/70">
         Set a League of Legends challenge, share the link, and let it track itself.

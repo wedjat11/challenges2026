@@ -1,13 +1,10 @@
-import { readFileSync } from "node:fs";
-
-import { createClient } from "@libsql/client";
-import { drizzle } from "drizzle-orm/libsql";
 import { beforeEach, describe, expect, it } from "vitest";
 
 import { drizzle as drizzleD1 } from "drizzle-orm/d1";
 
 import { createChallengeRepository } from "@/adapters/db/challenge-repository";
 import type { ChallengeDb } from "@/adapters/db/challenge-repository";
+import { createTestDb } from "@/adapters/db/test-db";
 import * as schema from "@/db/schema";
 import type { ChallengeRepository, NewChallenge } from "@/domain/ports/challenge-repository";
 
@@ -21,22 +18,14 @@ const _d1SatisfiesTheAdapter: ChallengeDb = null as unknown as D1Drizzle;
 void _d1SatisfiesTheAdapter;
 
 /**
- * Runs against SQLite in memory, applying the same migration file D1 runs.
+ * Seeds a fresh in-memory database with the user and Riot accounts these
+ * specs join and save progress against, then wraps it in the repository.
  *
- * D1 is SQLite, so the SQL under test is the SQL that ships. What this does not
- * cover is driver-level behaviour, which is why the poller is also exercised
- * against real D1 later.
+ * What this does not cover is driver-level behaviour, which is why the
+ * poller is also exercised against real D1 later.
  */
 async function freshRepository(): Promise<ChallengeRepository> {
-  const client = createClient({ url: ":memory:" });
-  const migration = readFileSync("drizzle/0000_initial_schema.sql", "utf8");
-
-  for (const statement of migration.split("--> statement-breakpoint")) {
-    const sql = statement.trim();
-    if (sql) await client.execute(sql);
-  }
-
-  const db = drizzle(client, { schema });
+  const db = await createTestDb();
   await db.insert(schema.users).values({ id: "user-1", discordId: "d1", displayName: "Owner" });
   await db.insert(schema.riotAccounts).values([
     {
