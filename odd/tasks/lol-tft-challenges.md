@@ -225,6 +225,38 @@ Until T3 lands there is no runner, so tasks before it are verified by build and 
       disagreed, a challenge would stop being polled on the day it ends.
 - [ ] **T9 — Auth.** Auth.js with Discord provider, session wired through the App Router.
       *Check:* sign-in and sign-out work against the deployed preview.
+      *Plan (2026-09-18):* JWT session strategy, **no Auth.js adapter**. `users` is already
+      custom and keyed by `discordId`; Auth.js's four tables would duplicate it. On sign-in a
+      `UserRepository` port upserts the Discord identity and the internal `users.id` rides in
+      the token. Sub-steps: (a) `UserRepository` port + Drizzle adapter, tested on in-memory
+      SQLite like T8; (b) pure auth callbacks in `src/auth/callbacks.ts`, tested; (c) `auth.ts`
+      lazy config reading the D1 binding via `getCloudflareContext`, `trustHost: true`, route
+      handler at `app/api/auth/[...nextauth]`; (d) sign-in/sign-out UI on the landing page;
+      (e) `.dev.vars.example` and `.env.example` documenting `AUTH_SECRET`, `AUTH_DISCORD_ID`,
+      `AUTH_DISCORD_SECRET`. No `proxy.ts` — nothing needs route protection yet.
+      **Code complete, manual check pending** (2026-09-18). All five sub-steps landed on
+      `feat/discord-auth`; `next-auth` pinned to `5.0.0-beta.32`.
+      *Observed RED:* both new suites failed on missing modules, exit 1.
+      *Observed GREEN:* 108 passed, exit 0; typecheck, lint, `next build` and the worker build
+      all exit 0. `/` and `/api/auth/[...nextauth]` are now dynamic routes; `/terms` and
+      `/privacy` stay static.
+      *Gotcha caught by `tsc`:* in the `jwt` callback `user` is the provider's transformed
+      profile (`{ id, name, email, image }`) and `profile` is the raw OAuth payload. The
+      callbacks validate the transformed shape with Zod, so the avatar URL derivation stays in
+      the provider and is not duplicated here.
+      *Independent read-only verification* (RDD off-path, tier high) checked every assumption
+      against the installed library source: lazy config is per-request; the default `redirect`
+      callback is same-origin only, so `signIn`/`signOut` cannot open-redirect; server-action
+      forms get Next's Origin check; the JWT is signed, so `session.user.id` cannot be forged;
+      the upsert is one atomic `INSERT ... ON CONFLICT DO UPDATE` on the `discord_id` unique
+      index, so a concurrent double sign-in cannot duplicate a user. Two corrections to the
+      brief: a missing `AUTH_SECRET` does not throw, Auth.js logs and answers 500; and the three
+      auth variables are Worker secrets, not `vars`, so `wrangler types` does not type them.
+      *Not written:* `.env.example`. A permission rule blocks every `.env*` path, including the
+      example. `.dev.vars.example` carries the same three variable names.
+      *Native review:* consent granted, lineage `review-9ab2c78768cd9863` open at `reviewing`;
+      all four lens captures failed with the same 401 as on 2026-09-16 (stale `claude` CLI OAuth
+      token). Not retried; see blockers.
 - [ ] **T10 — Riot ID linking.** Resolve `gameName#tagLine` to a PUUID via account-v1 and store
       it, labelled unverified in the UI.
       *Check:* Vitest RED then GREEN on the resolver; manual check of the linking flow.
@@ -303,19 +335,31 @@ Started 2026-09-16. Repository on `main`.
 - **T6 complete.** Riot adapter done, 74 specs passing, and verified once against the live API.
   Three things were learned from real responses that documentation had wrong — see the task.
 - **T7 complete.** Schema and migrations applied to both local and remote D1, 83 specs passing.
-- **T8 complete.** Challenge repository behind a port, 96 specs passing.
+- **T8 complete.** Challenge repository behind a port, 96 specs passing. Merged to `main`
+  through PR #1 on 2026-09-18.
+- **T9 code complete, uncommitted on `feat/discord-auth`.** 108 specs passing, all builds
+  green, independently verified with no findings. The manual sign-in check waits on Discord
+  credentials only the owner can create.
 
 **Blocked, needing the owner:**
+
+0. **For T9's manual check:** create a Discord application in the Developer Portal with
+   redirect URIs `https://lol-tft-challenges.lol-tft-challenges.workers.dev/api/auth/callback/discord`
+   and `http://localhost:3000/api/auth/callback/discord`; generate `AUTH_SECRET`
+   (`openssl rand -base64 33`); set `AUTH_SECRET`, `AUTH_DISCORD_ID` and `AUTH_DISCORD_SECRET`
+   on the Worker with `wrangler secret put <NAME>` and locally in `.dev.vars` (gitignored).
 
 1. Create `.env.local` (gitignored, never committed) holding `RIOT_API_KEY`, `RIOT_REGION` and
    `RIOT_PLATFORM`. The agent cannot write `.env*` files — a permission rule blocks it, which is
    the correct guard. **A key was pasted into chat on 2026-09-16 and must be regenerated.**
 2. Fill in `OPERATOR` in `src/lib/legal.ts`: operator name, contact email, jurisdiction. Riot
    rejects a production key application while these read "TO BE COMPLETED".
-3. Re-authenticate the `claude` CLI. The native review lineage `review-15df7d00d361b982` is open
-   at state `reviewing` for the T1 candidate; its reviewer subprocess fails with a 401 on an
-   invalid OAuth token, so no receipt exists. That candidate is now several commits stale, so
-   starting a fresh review is better than resuming it. Blocks nothing.
+3. Re-authenticate the `claude` CLI at `~/.local/bin/claude` (2.1.114) with `claude login`.
+   `claude auth status` reports logged in, but the reviewer subprocess Gentle AI spawns gets
+   `401 OAuth access token is invalid`, so the cached token is stale. This blocked the T1 review
+   on 2026-09-16 and the T9 review on 2026-09-18. T9's lineage `review-9ab2c78768cd9863` is
+   open at `reviewing`; after re-login, re-query its bound status and re-run the reoffered
+   captures. The T1 lineage is stale and not worth resuming. Blocks nothing for delivery.
 
 **Unblocked 2026-09-16:** `wrangler login` done, T2 deployed and serving.
 
@@ -326,5 +370,6 @@ what actually starts that clock. Consider pulling T13 forward ahead of T9–T12.
 **Scope narrowed 2026-09-16:** League of Legends only for v1; TFT deferred to v2. No completed
 work was invalidated — T1 and T2 are game-agnostic infrastructure.
 
-**Next step:** T9 — Auth.js with the Discord provider, wired through the App Router.
-This is the first task needing Discord application credentials, which only the owner can create.
+**Next step:** commit T9 on `feat/discord-auth` and open its PR; once the owner sets the
+Discord secrets, deploy and run the manual sign-in/sign-out check, then tick T9. T10 (Riot ID
+linking) can start in parallel: it needs `session.user.id`, which T9 now provides.
