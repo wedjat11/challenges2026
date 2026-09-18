@@ -9,3 +9,7 @@ AUTH_DISCORD_ID=
 
 # Discord OAuth application client secret, from the Discord Developer Portal.
 AUTH_DISCORD_SECRET=
+
+# Riot Games API key, from the Riot Developer Portal. Used by src/lib/riot.ts
+# to resolve Riot IDs and, later, to fetch match history.
+RIOT_API_KEY=

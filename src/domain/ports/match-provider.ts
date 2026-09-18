@@ -1,6 +1,23 @@
 import type { MatchSummary } from "@/domain/match";
 
 /**
+ * The one failure a provider is allowed to surface with detail: the upstream
+ * answered, and the status says why. Declared with the port, not the Riot
+ * client, so application code can branch on it (404 means "no such Riot ID")
+ * without importing an adapter. The message stays generic on purpose, so a
+ * secret or request detail can never travel in it.
+ */
+export class MatchProviderError extends Error {
+  readonly status: number;
+
+  constructor(status: number) {
+    super(`Match provider request failed with ${status}`);
+    this.name = "MatchProviderError";
+    this.status = status;
+  }
+}
+
+/**
  * What the application needs from a source of match data, stated in the
  * domain's own terms.
  *

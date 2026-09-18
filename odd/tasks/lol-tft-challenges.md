@@ -260,6 +260,56 @@ Until T3 lands there is no runner, so tasks before it are verified by build and 
 - [ ] **T10 — Riot ID linking.** Resolve `gameName#tagLine` to a PUUID via account-v1 and store
       it, labelled unverified in the UI.
       *Check:* Vitest RED then GREEN on the resolver; manual check of the linking flow.
+      *Plan (2026-09-18), stacked on `feat/discord-auth` because it needs `session.user.id`:*
+      (a) `src/domain/riot-id.ts` — `parseRiotId` with Riot's rules (game name 3–16 chars, tag
+      line 3–5 alphanumerics), plus a typed `Platform` list and `regionForPlatform`, which the
+      codebase lacks today (platform and region are loose strings). (b) `RiotAccountRepository`
+      port and Drizzle adapter, mirroring `UserRepository`: `link`, `listByUser`, `findByPuuid`,
+      `unlink`. (c) `src/application/link-riot-account.ts` — the use case, returning a typed
+      result (`linked`, `already_linked`, `invalid_riot_id`, `invalid_platform`, `not_found`,
+      `claimed_by_other_user`, `riot_unavailable`) rather than throwing, so the UI never
+      guesses. (d) `MatchProviderError` carrying `status`, declared on the `MatchProvider` port
+      and thrown by the Riot adapter, so 404 is distinguishable without parsing a message and
+      without application code importing an adapter. (e) `src/lib/riot.ts`
+      building a `MatchProvider` per routing region from `RIOT_API_KEY`. (f) `/account` page:
+      linked accounts with an "Unverified" badge, link form, unlink. All platforms offered,
+      LAN default; the launch-regions decision stays open and only trims a list later.
+      **Code complete, manual check pending** (2026-09-18), on `feat/riot-id-linking` stacked
+      on `feat/discord-auth`.
+      *Observed RED:* every new suite failed on its missing module first, exit 1.
+      *Observed GREEN:* 163 passed, exit 0; typecheck, lint, `next build` and the worker build
+      exit 0. No import from `src/adapters` anywhere under `src/application` or `src/domain`.
+      *Reviewed natively three times, all approved and acknowledged* (lineages
+      `review-249b12d261e3b7d8`, `review-61d05f19a56b9fdf`, `review-fb978371b013677e`). The
+      first two rounds' advisory findings drove two correction passes, all covered by specs:
+      - `link` was check-then-insert; a concurrent duplicate would have thrown the unique
+        constraint unhandled. Now `INSERT ... ON CONFLICT DO NOTHING` then one read, so the
+        database is the arbiter and the three outcomes come from a single row.
+      - **SEA platforms were routed to `sea` for account-v1, which only accepts `americas`,
+        `asia` and `europe`.** `accountRegionForPlatform` sends them to `asia`;
+        `regionForPlatform` keeps `sea` for match-v5 and the stored row.
+      - `matchProviderFor` ran outside the `try`, so a missing `RIOT_API_KEY` escaped the typed
+        result. Inside now, and the interactive path uses `maxRetries: 0` so a 429 surfaces at
+        once instead of sleeping out `Retry-After` inside a server action.
+      - `region` is derived from `platform` on write and asserted on read; re-linking refreshes
+        a renamed Riot ID; `listByUser` breaks `createdAt` ties by `id`; the game-name length
+        counts code points, not UTF-16 units.
+      *Moved on purpose:* the status-carrying error is `MatchProviderError` on the
+      `MatchProvider` port, not an adapter export. The first draft had the use case importing
+      from `src/adapters`, which inverts the dependency the ports exist to prevent.
+      *Accepted as-is:* one corrupt `riot_accounts` row fails the whole `/account` page
+      (a guard, not a path users hit); the Next server actions have no unit specs.
+      *Left from the third round, all informational, for a later polish pass:* trim each side
+      of the `#` in `parseRiotId`, not only the whole input; export the length and tag-line
+      constants so the form messages cannot drift from the domain; say "updated" rather than
+      "already linked" when a re-link refreshed the stored identity; make the in-memory fake
+      repository apply the same refresh so use-case specs can catch a regression; drop the
+      unsourced "Riot's own client splits on the last `#`" from a comment; and `link` still
+      throws if the conflicting row is unlinked between its insert and its read, a window the
+      server action does not catch.
+      *Owner decisions raised by the review:* Riot ID squatting and per-user throttling, both
+      under open decisions.
+      *Manual check* needs `RIOT_API_KEY` and the Discord secrets on the Worker.
 - [ ] **T11 — Polling pipeline.** Cron trigger enqueues one Queue message per player due for
       polling; the consumer fetches only matches newer than `poll_state.last_match_id` and updates
       progress. Never loop players inline in the cron handler.
@@ -309,6 +359,16 @@ Until T3 lands there is no runner, so tasks before it are verified by build and 
       T6 found that Riot also sends `gameEndedInEarlySurrender`, which identifies a remake exactly
       rather than by proxy. Worth adopting if this rule stays, but it means adding a field to
       `MatchSummary` and a condition to `evaluate`.
+- [ ] **Riot ID squatting before verification.** Raised by the T10 review (finding R1-001).
+      Linking is first-come and exclusive across the whole table, and ownership is not checked
+      until RSO exists. Any signed-in user can claim someone else's Riot ID, and the real owner
+      then gets `claimed_by_other_user` with no way to reclaim it. Options: keep links
+      non-exclusive until verified, or add a reclaim flow. Matters before challenge progress
+      depends on these rows (T11), not before.
+- [ ] **Per-user throttle on Riot ID linking.** Raised by the T10 review (finding R1-002).
+      Every link submission spends one account-v1 call from the shared key, with no per-user
+      limit, so a signed-in user can burn the app's rate-limit budget with invented Riot IDs.
+      Cheap to add with KV once the polling pipeline (T11) also needs budget accounting.
 - [ ] Personal goals only, or group competitions with a shared leaderboard?
 - [ ] Monetization intent — changes what Riot requires at registration.
 - [ ] UI language: Spanish, English, or both.
@@ -337,9 +397,12 @@ Started 2026-09-16. Repository on `main`.
 - **T7 complete.** Schema and migrations applied to both local and remote D1, 83 specs passing.
 - **T8 complete.** Challenge repository behind a port, 96 specs passing. Merged to `main`
   through PR #1 on 2026-09-18.
-- **T9 code complete, uncommitted on `feat/discord-auth`.** 108 specs passing, all builds
-  green, independently verified with no findings. The manual sign-in check waits on Discord
-  credentials only the owner can create.
+- **T9 code complete, committed as `7800236` on `feat/discord-auth`, PR #2 open.** 108 specs
+  passing, all builds green, independently verified with no findings. The manual sign-in check
+  waits on Discord credentials only the owner can create.
+- **T10 code complete, uncommitted on `feat/riot-id-linking` (stacked on `feat/discord-auth`).**
+  163 specs passing, all builds green, three native reviews approved and acknowledged. The
+  manual linking check waits on `RIOT_API_KEY` and the Discord secrets on the Worker.
 
 **Blocked, needing the owner:**
 
@@ -370,6 +433,9 @@ what actually starts that clock. Consider pulling T13 forward ahead of T9–T12.
 **Scope narrowed 2026-09-16:** League of Legends only for v1; TFT deferred to v2. No completed
 work was invalidated — T1 and T2 are game-agnostic infrastructure.
 
-**Next step:** commit T9 on `feat/discord-auth` and open its PR; once the owner sets the
-Discord secrets, deploy and run the manual sign-in/sign-out check, then tick T9. T10 (Riot ID
-linking) can start in parallel: it needs `session.user.id`, which T9 now provides.
+**Next step:** commit T10 on `feat/riot-id-linking` and open its PR against
+`feat/discord-auth`. Once the owner sets the three Discord secrets and `RIOT_API_KEY` on the
+Worker, deploy and run the manual checks for T9 (sign-in/out) and T10 (link a Riot ID), then
+tick both. After that, T11 — the polling pipeline — which also needs the two open decisions
+raised by the T10 review (squatting, per-user throttle) settled before it depends on
+`riot_accounts` rows.
