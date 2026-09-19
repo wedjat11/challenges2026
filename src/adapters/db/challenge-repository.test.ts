@@ -199,6 +199,198 @@ describe("finding what the poller should work on", () => {
   });
 });
 
+describe("listPublic", () => {
+  it("includes a public challenge whose window contains now", async () => {
+    await repository.create(aChallenge({ visibility: "public" }));
+
+    const listed = await repository.listPublic(new Date("2026-09-16T12:00:00Z"), 10);
+
+    expect(listed.map((c) => c.id)).toEqual(["challenge-1"]);
+  });
+
+  it("excludes an unlisted challenge regardless of its window", async () => {
+    await repository.create(aChallenge({ visibility: "unlisted" }));
+
+    const listed = await repository.listPublic(new Date("2026-09-16T12:00:00Z"), 10);
+
+    expect(listed).toEqual([]);
+  });
+
+  it("excludes a public challenge that has not started yet", async () => {
+    await repository.create(aChallenge({ visibility: "public" }));
+
+    const listed = await repository.listPublic(new Date("2026-09-13T00:00:00Z"), 10);
+
+    expect(listed).toEqual([]);
+  });
+
+  it("excludes a public challenge that has already ended", async () => {
+    await repository.create(aChallenge({ visibility: "public" }));
+
+    const listed = await repository.listPublic(new Date("2026-09-22T00:00:00Z"), 10);
+
+    expect(listed).toEqual([]);
+  });
+
+  it("includes a public challenge exactly at startsAt", async () => {
+    await repository.create(aChallenge({ visibility: "public" }));
+
+    const listed = await repository.listPublic(WINDOW.startsAt, 10);
+
+    expect(listed.map((c) => c.id)).toEqual(["challenge-1"]);
+  });
+
+  it("includes a public challenge exactly at endsAt", async () => {
+    await repository.create(aChallenge({ visibility: "public" }));
+
+    const listed = await repository.listPublic(WINDOW.endsAt, 10);
+
+    expect(listed.map((c) => c.id)).toEqual(["challenge-1"]);
+  });
+
+  it("orders results by endsAt ascending", async () => {
+    await repository.create(
+      aChallenge({
+        id: "challenge-late",
+        visibility: "public",
+        endsAt: new Date("2026-09-25T00:00:00Z"),
+      }),
+    );
+    await repository.create(
+      aChallenge({
+        id: "challenge-early",
+        visibility: "public",
+        endsAt: new Date("2026-09-18T00:00:00Z"),
+      }),
+    );
+
+    const listed = await repository.listPublic(new Date("2026-09-16T12:00:00Z"), 10);
+
+    expect(listed.map((c) => c.id)).toEqual(["challenge-early", "challenge-late"]);
+  });
+
+  it("breaks a tie on endsAt by ordering on id ascending", async () => {
+    await repository.create(
+      aChallenge({ id: "challenge-z", visibility: "public", endsAt: WINDOW.endsAt }),
+    );
+    await repository.create(
+      aChallenge({ id: "challenge-a", visibility: "public", endsAt: WINDOW.endsAt }),
+    );
+
+    const listed = await repository.listPublic(new Date("2026-09-16T12:00:00Z"), 10);
+
+    expect(listed.map((c) => c.id)).toEqual(["challenge-a", "challenge-z"]);
+  });
+
+  it("respects the limit", async () => {
+    await repository.create(
+      aChallenge({ id: "challenge-a", visibility: "public", endsAt: new Date("2026-09-17T00:00:00Z") }),
+    );
+    await repository.create(
+      aChallenge({ id: "challenge-b", visibility: "public", endsAt: new Date("2026-09-18T00:00:00Z") }),
+    );
+
+    const listed = await repository.listPublic(new Date("2026-09-16T12:00:00Z"), 1);
+
+    expect(listed.map((c) => c.id)).toEqual(["challenge-a"]);
+  });
+
+  it("returns an empty array, not an error, when nothing matches", async () => {
+    const listed = await repository.listPublic(new Date("2026-09-16T12:00:00Z"), 10);
+
+    expect(listed).toEqual([]);
+  });
+});
+
+describe("listProgressForChallenge", () => {
+  it("returns each participant's own rows", async () => {
+    await repository.create(aChallenge());
+    await repository.join("challenge-1", "account-1");
+    await repository.join("challenge-1", "account-2");
+    await repository.saveProgress("challenge-1", "account-1", {
+      rules: [{ current: 4, target: 10, completed: false }],
+      completed: false,
+    });
+    await repository.saveProgress("challenge-1", "account-2", {
+      rules: [{ current: 10, target: 10, completed: true }],
+      completed: true,
+    });
+
+    const progress = await repository.listProgressForChallenge("challenge-1");
+
+    expect(progress).toEqual(
+      expect.arrayContaining([
+        {
+          riotAccountId: "account-1",
+          rules: [{ current: 4, target: 10, completed: false }],
+        },
+        {
+          riotAccountId: "account-2",
+          rules: [{ current: 10, target: 10, completed: true }],
+        },
+      ]),
+    );
+    expect(progress).toHaveLength(2);
+  });
+
+  it("preserves ruleIndex order within a participant", async () => {
+    await repository.create(
+      aChallenge({
+        rules: [
+          { target: 10, criteria: [] },
+          { target: 5, criteria: [{ kind: "won" }] },
+        ],
+      }),
+    );
+    await repository.join("challenge-1", "account-1");
+    await repository.saveProgress("challenge-1", "account-1", {
+      rules: [
+        { current: 3, target: 10, completed: false },
+        { current: 1, target: 5, completed: false },
+      ],
+      completed: false,
+    });
+
+    const [participant] = await repository.listProgressForChallenge("challenge-1");
+
+    expect(participant?.rules).toEqual([
+      { current: 3, target: 10, completed: false },
+      { current: 1, target: 5, completed: false },
+    ]);
+  });
+
+  it("maps a null completedAt to completed: false", async () => {
+    await repository.create(aChallenge());
+    await repository.join("challenge-1", "account-1");
+    await repository.saveProgress("challenge-1", "account-1", {
+      rules: [{ current: 4, target: 10, completed: false }],
+      completed: false,
+    });
+
+    const [participant] = await repository.listProgressForChallenge("challenge-1");
+
+    expect(participant?.rules[0]?.completed).toBe(false);
+  });
+
+  it("omits a participant who joined but has no progress rows", async () => {
+    await repository.create(aChallenge());
+    await repository.join("challenge-1", "account-1");
+    await repository.join("challenge-1", "account-2");
+    await repository.saveProgress("challenge-1", "account-1", {
+      rules: [{ current: 4, target: 10, completed: false }],
+      completed: false,
+    });
+
+    const progress = await repository.listProgressForChallenge("challenge-1");
+
+    expect(progress.map((p) => p.riotAccountId)).toEqual(["account-1"]);
+  });
+
+  it("returns an empty array for an unknown challenge id", async () => {
+    expect(await repository.listProgressForChallenge("nope")).toEqual([]);
+  });
+});
+
 describe("finding what one account should be polled for", () => {
   it("includes a challenge the account joined that is active now", async () => {
     await repository.create(aChallenge());

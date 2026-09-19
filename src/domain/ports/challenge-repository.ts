@@ -52,4 +52,23 @@ export type ChallengeRepository = {
    * out in application code.
    */
   listActiveForAccount(riotAccountId: string, now: Date): Promise<StoredChallenge[]>;
+
+  /**
+   * Public challenges whose window contains `now`, soonest-ending first so the
+   * most time-sensitive opportunity is on top; `id` breaks ties because two
+   * challenges can share an end instant and the order must not depend on the
+   * table's physical order.
+   */
+  listPublic(now: Date, limit: number): Promise<StoredChallenge[]>;
+
+  /**
+   * Stored progress for every participant of one challenge, in one query.
+   * Participants with no evaluated rows yet are absent — the caller pairs this
+   * with `listParticipants` and fills zeros, so "joined but never polled" is
+   * distinguishable from "not joined".
+   */
+  listProgressForChallenge(challengeId: string): Promise<ParticipantProgress[]>;
 };
+
+/** One participant's stored progress across every rule, ruleIndex ascending. */
+export type ParticipantProgress = { riotAccountId: string; rules: RuleProgress[] };

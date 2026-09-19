@@ -1,4 +1,4 @@
-import { and, eq, gte, lte, sql } from "drizzle-orm";
+import { and, asc, eq, gte, lte, sql } from "drizzle-orm";
 import type { BaseSQLiteDatabase } from "drizzle-orm/sqlite-core";
 
 import * as schema from "@/db/schema";
@@ -6,6 +6,7 @@ import { parseRules, serialiseRules } from "@/domain/rule-codec";
 import type {
   ChallengeRepository,
   NewChallenge,
+  ParticipantProgress,
   StoredChallenge,
 } from "@/domain/ports/challenge-repository";
 import type { ChallengeProgress, RuleProgress } from "@/domain/progress";
@@ -21,6 +22,16 @@ import type { ChallengeProgress, RuleProgress } from "@/domain/progress";
 export type ChallengeDb = BaseSQLiteDatabase<"async", unknown, typeof schema>;
 
 type ChallengeRow = typeof schema.challenges.$inferSelect;
+type ProgressRow = typeof schema.progress.$inferSelect;
+
+/** Shared by `findProgress` and `listProgressForChallenge` so the two never disagree on what `completed` means. */
+function toRuleProgress(row: ProgressRow): RuleProgress {
+  return {
+    current: row.current,
+    target: row.target,
+    completed: row.completedAt !== null,
+  };
+}
 
 function toStoredChallenge(row: ChallengeRow): StoredChallenge {
   return {
@@ -126,11 +137,7 @@ export function createChallengeRepository(db: ChallengeDb): ChallengeRepository 
         )
         .orderBy(schema.progress.ruleIndex);
 
-      return rows.map((row) => ({
-        current: row.current,
-        target: row.target,
-        completed: row.completedAt !== null,
-      }));
+      return rows.map(toRuleProgress);
     },
 
     async listActiveAt(now: Date): Promise<StoredChallenge[]> {
@@ -160,6 +167,45 @@ export function createChallengeRepository(db: ChallengeDb): ChallengeRepository 
         );
 
       return rows.map((row) => toStoredChallenge(row.challenge));
+    },
+
+    async listPublic(now: Date, limit: number): Promise<StoredChallenge[]> {
+      // Both bounds inclusive, matching listActiveAt() — if storage disagreed,
+      // a challenge would vanish from the browse list on the day it ends.
+      const rows = await db
+        .select()
+        .from(schema.challenges)
+        .where(
+          and(
+            eq(schema.challenges.visibility, "public"),
+            lte(schema.challenges.startsAt, now),
+            gte(schema.challenges.endsAt, now),
+          ),
+        )
+        .orderBy(asc(schema.challenges.endsAt), asc(schema.challenges.id))
+        .limit(limit);
+
+      return rows.map(toStoredChallenge);
+    },
+
+    async listProgressForChallenge(challengeId: string): Promise<ParticipantProgress[]> {
+      const rows = await db
+        .select()
+        .from(schema.progress)
+        .where(eq(schema.progress.challengeId, challengeId))
+        .orderBy(asc(schema.progress.riotAccountId), asc(schema.progress.ruleIndex));
+
+      const byAccount = new Map<string, ParticipantProgress>();
+      for (const row of rows) {
+        let participant = byAccount.get(row.riotAccountId);
+        if (!participant) {
+          participant = { riotAccountId: row.riotAccountId, rules: [] };
+          byAccount.set(row.riotAccountId, participant);
+        }
+        participant.rules.push(toRuleProgress(row));
+      }
+
+      return [...byAccount.values()];
     },
   };
 }
