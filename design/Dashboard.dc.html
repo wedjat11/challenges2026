@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet><meta name="design_doc_mode" content="canvas">
+<link rel="stylesheet" href="_ds/become-a-legend-design-system-cbebf259-7f79-47a7-9501-a332cdf16208/tokens/fonts.css">
+<link rel="stylesheet" href="_ds/become-a-legend-design-system-cbebf259-7f79-47a7-9501-a332cdf16208/tokens/colors.css">
+<link rel="stylesheet" href="_ds/become-a-legend-design-system-cbebf259-7f79-47a7-9501-a332cdf16208/tokens/tiers.css">
+<link rel="stylesheet" href="_ds/become-a-legend-design-system-cbebf259-7f79-47a7-9501-a332cdf16208/tokens/typography.css">
+<link rel="stylesheet" href="_ds/become-a-legend-design-system-cbebf259-7f79-47a7-9501-a332cdf16208/tokens/spacing.css">
+<link rel="stylesheet" href="_ds/become-a-legend-design-system-cbebf259-7f79-47a7-9501-a332cdf16208/tokens/radius.css">
+<link rel="stylesheet" href="_ds/become-a-legend-design-system-cbebf259-7f79-47a7-9501-a332cdf16208/tokens/elevation.css">
+<link rel="stylesheet" href="_ds/become-a-legend-design-system-cbebf259-7f79-47a7-9501-a332cdf16208/tokens/motion.css">
+<link rel="stylesheet" href="_ds/become-a-legend-design-system-cbebf259-7f79-47a7-9501-a332cdf16208/tokens/base.css">
+<link rel="stylesheet" href="_ds/become-a-legend-design-system-cbebf259-7f79-47a7-9501-a332cdf16208/styles.css">
+<script src="https://unpkg.com/lucide@0.544.0/dist/umd/lucide.js"></script>
+<script src="_ds/become-a-legend-design-system-cbebf259-7f79-47a7-9501-a332cdf16208/_ds_bundle.js"></script>
+<style>body{margin:0;background:var(--bg-base,#08090A)}a{color:var(--text-primary)}a:hover{opacity:.72}</style></helmet>
+<div style="min-height:100vh;background:var(--bg-base);padding:48px 40px;font-family:var(--font-body);color:var(--text-primary)">
+<div style="display:flex;align-items:center;gap:20px;margin-bottom:28px;flex-wrap:wrap">
+<span class="bal-eyebrow" style="color:var(--text-muted)">Maqueta 02 · Dashboard inicial</span>
+<span style="font-size:13px;color:var(--text-faint)">Wireframes <a href="Wireframes Retos.dc.html#1h">1h</a> + <a href="Wireframes Retos.dc.html#1b">1b</a> + <a href="Wireframes Retos.dc.html#1z">1z</a> · 390×844 y 1440×900</span>
+<div style="flex:1"></div>
+<div style="display:flex;align-items:center;gap:10px"><span style="font-size:13px;color:var(--text-muted)">Idioma</span><x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.Tabs" items="{{ langTabs }}" value="{{ lang }}" on-change="{{ setLang }}" hint-size="140px,36px"></x-import></div>
+</div>
+
+<div style="display:flex;gap:36px;align-items:flex-start;flex-wrap:wrap">
+
+<div style="display:flex;flex-direction:column;gap:12px" data-screen-label="01 Con retos">
+<span class="bal-eyebrow" style="color:var(--text-muted)">01 · Con retos</span>
+<div style="width:390px;height:844px;background:var(--bg-canvas);border:1px solid var(--border-subtle);border-radius:4px;display:flex;flex-direction:column;overflow:hidden;position:relative">
+<div style="height:44px;display:flex;align-items:center;padding:0 24px;flex:0 0 auto"><span class="bal-num" style="font-size:13px;font-weight:600">21:04</span></div>
+<div style="flex:0 0 auto;padding:4px 20px 14px;border-bottom:1px solid var(--border-hairline)">
+<div style="display:flex;align-items:center;justify-content:space-between;gap:12px">
+<div style="font-family:var(--font-display);font-size:13px;font-weight:700;line-height:.95;letter-spacing:-.03em;text-transform:uppercase">Become<br>a Legend</div>
+<x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.CoinChip" amount="{{ coins }}" xp="{{ xp }}" level="{{ level }}" hint-size="180px,34px"></x-import>
+</div>
+<div style="display:flex;align-items:baseline;justify-content:space-between;margin-top:18px"><h1 style="margin:0;font-family:var(--font-display);font-size:28px;font-weight:700;letter-spacing:-.035em">{{ t.title }}</h1><span class="bal-eyebrow" style="color:var(--text-muted)">{{ t.season }}</span></div>
+</div>
+<div style="padding:14px 20px 0"><x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.Tabs" items="{{ tabs }}" value="{{ tab }}" on-change="{{ setTab }}" hint-size="100%,36px"></x-import></div>
+<div style="flex:1;overflow:hidden;padding:18px 20px 0;display:flex;flex-direction:column;gap:14px">
+<x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.ChallengeCard" game="lol" queue="1v1" status="pendiente" stake="{{ 150 }}" xp="{{ 180 }}" meta="{{ t.meta1 }}" challenger="{{ ana }}" opponent="{{ me }}" on-accept="{{ noop }}" on-decline="{{ noop }}" hint-size="100%,250px"></x-import>
+<div style="background:var(--surface-2);border:1px solid var(--border-hairline);border-radius:var(--radius-card);padding:16px;display:flex;flex-direction:column;gap:12px">
+<div style="display:flex;align-items:center;justify-content:space-between"><x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.GameTag" game="lol" short="{{ true }}" hint-size="60px,22px"></x-import><x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.Badge" tone="pending" hint-size="auto,22px">{{ t.pending }}</x-import></div>
+<div><div class="bal-eyebrow" style="color:var(--text-muted)">{{ t.genericKind }}</div><div style="margin-top:6px;font-family:var(--font-display);font-size:20px;font-weight:700;letter-spacing:-.03em;line-height:1.1">{{ t.genericGoal }}</div></div>
+<div style="display:flex;align-items:center;gap:10px"><x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.Avatar" name="Mateo Díaz" tier="esmeralda" size="sm" hint-size="28px,28px"></x-import><span style="font-size:13px;color:var(--text-muted)">{{ t.genericFrom }}</span></div>
+<div style="display:flex;justify-content:space-between;align-items:center;padding-top:10px;border-top:1px solid var(--divider)"><span class="bal-num" style="font-size:13px">{{ t.genericStake }}</span><span class="bal-num" style="font-size:12px;color:var(--text-muted)">{{ t.meta2 }}</span></div>
+<div style="display:flex;gap:8px"><div style="flex:1"><x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.Button" variant="secondary" size="md" full-width="{{ true }}" hint-size="100%,40px">{{ t.accept }}</x-import></div><x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.Button" variant="ghost" size="md" hint-size="90px,40px">{{ t.decline }}</x-import></div>
+</div>
+<div style="background:var(--surface-2);border:1px solid var(--border-hairline);border-radius:var(--radius-card);padding:16px;display:flex;flex-direction:column;gap:12px">
+<div style="display:flex;align-items:center;justify-content:space-between"><x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.GameTag" game="tft" short="{{ true }}" hint-size="60px,22px"></x-import><x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.Badge" tone="live" hint-size="auto,22px">{{ t.live }}</x-import></div>
+<div><div class="bal-eyebrow" style="color:var(--text-muted)">{{ t.liveKind }}</div><div style="margin-top:6px;font-family:var(--font-display);font-size:20px;font-weight:700;letter-spacing:-.03em;line-height:1.1">{{ t.liveGoal }}</div></div>
+<div style="display:flex;justify-content:space-between;align-items:baseline"><span class="bal-num" style="font-size:22px;font-weight:600">2 <span style="color:var(--text-faint)">/ 3</span></span><span class="bal-num" style="font-size:12px;color:var(--text-muted)">{{ t.liveMeta }}</span></div>
+<x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.XPBar" value="{{ 2 }}" max="{{ 3 }}" compact="{{ true }}" hint-size="100%,4px"></x-import>
+</div>
+</div>
+<x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.BottomNav" items="{{ nav }}" value="retos" on-change="{{ noop }}" hint-size="100%,88px"></x-import>
+</div></div>
+
+<div style="display:flex;flex-direction:column;gap:12px" data-screen-label="02 Vacío">
+<span class="bal-eyebrow" style="color:var(--text-muted)">02 · Vacío, primera vez</span>
+<div style="width:390px;height:844px;background:var(--bg-canvas);border:1px solid var(--border-subtle);border-radius:4px;display:flex;flex-direction:column;overflow:hidden">
+<div style="height:44px;display:flex;align-items:center;padding:0 24px;flex:0 0 auto"><span class="bal-num" style="font-size:13px;font-weight:600">21:04</span></div>
+<div style="flex:0 0 auto;padding:4px 20px 14px;border-bottom:1px solid var(--border-hairline)">
+<div style="display:flex;align-items:center;justify-content:space-between;gap:12px">
+<div style="font-family:var(--font-display);font-size:13px;font-weight:700;line-height:.95;letter-spacing:-.03em;text-transform:uppercase">Become<br>a Legend</div>
+<x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.CoinChip" amount="{{ 500 }}" xp="{{ 0 }}" level="{{ 1 }}" hint-size="180px,34px"></x-import>
+</div>
+<div style="display:flex;align-items:baseline;justify-content:space-between;margin-top:18px"><h1 style="margin:0;font-family:var(--font-display);font-size:28px;font-weight:700;letter-spacing:-.035em">{{ t.title }}</h1><span class="bal-eyebrow" style="color:var(--text-muted)">{{ t.season }}</span></div>
+</div>
+<div style="padding:14px 20px 0"><x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.Tabs" items="{{ tabsEmpty }}" value="para-mi" on-change="{{ noop }}" hint-size="100%,36px"></x-import></div>
+<div style="flex:1;padding:18px 20px 24px;display:flex;flex-direction:column;gap:14px">
+<div style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:16px;padding:0 4px">
+<span style="color:var(--text-faint);display:inline-flex"><x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.Icon" name="swords" size="{{ 28 }}" hint-size="28px,28px"></x-import></span>
+<h2 style="margin:0;font-family:var(--font-display);font-size:30px;font-weight:700;letter-spacing:-.035em;line-height:1">{{ t.emptyTitle }}</h2>
+<p style="margin:0;font-size:15px;line-height:1.55;color:var(--text-muted)">{{ t.emptySub }}</p>
+<div style="display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--surface-2);border:1px solid var(--border-hairline);border-radius:var(--radius-card)"><span style="color:var(--amber-500);display:inline-flex"><x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.Icon" name="coins" size="{{ 16 }}" hint-size="16px,16px"></x-import></span><span style="font-size:13px;color:var(--text-muted)">{{ t.emptyCoins }}</span></div>
+</div>
+<div class="bal-eyebrow" style="color:var(--text-muted)">{{ t.friendsPlaying }}</div>
+<div style="background:var(--surface-2);border:1px solid var(--border-hairline);border-radius:var(--radius-card)">
+<x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.PlayerRow" name="Ana López" handle="AnaL#LAN" tier="gran-maestro" online="{{ true }}" right="{{ retarBtn }}" hint-size="100%,60px"></x-import>
+<x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.PlayerRow" name="Mateo Díaz" handle="MateoD#LAN" tier="esmeralda" right="{{ retarBtn }}" style="{{ lastRow }}" hint-size="100%,60px"></x-import>
+</div>
+<x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.Button" variant="primary" size="lg" full-width="{{ true }}" icon="plus" hint-size="100%,48px">{{ t.emptyCta }}</x-import>
+</div>
+<x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.BottomNav" items="{{ nav }}" value="retos" on-change="{{ noop }}" hint-size="100%,88px"></x-import>
+</div></div>
+
+<div style="display:flex;flex-direction:column;gap:12px" data-screen-label="03 Toast">
+<span class="bal-eyebrow" style="color:var(--text-muted)">03 · Reto ganado, toast</span>
+<div style="width:390px;height:844px;background:var(--bg-canvas);border:1px solid var(--border-subtle);border-radius:4px;display:flex;flex-direction:column;overflow:hidden;position:relative">
+<div style="height:44px;display:flex;align-items:center;padding:0 24px;flex:0 0 auto"><span class="bal-num" style="font-size:13px;font-weight:600">21:04</span></div>
+<div style="position:absolute;top:52px;left:16px;right:16px;z-index:2"><x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.Toast" tone="win" title="{{ t.toastTitle }}" message="{{ t.toastMsg }}" on-dismiss="{{ noop }}" hint-size="100%,72px"></x-import></div>
+<div style="flex:0 0 auto;padding:4px 20px 14px;border-bottom:1px solid var(--border-hairline)">
+<div style="display:flex;align-items:center;justify-content:space-between;gap:12px">
+<div style="font-family:var(--font-display);font-size:13px;font-weight:700;line-height:.95;letter-spacing:-.03em;text-transform:uppercase">Become<br>a Legend</div>
+<x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.CoinChip" amount="{{ 2630 }}" xp="{{ 12580 }}" level="{{ level }}" hint-size="180px,34px"></x-import>
+</div>
+<div style="display:flex;align-items:baseline;justify-content:space-between;margin-top:18px"><h1 style="margin:0;font-family:var(--font-display);font-size:28px;font-weight:700;letter-spacing:-.035em">{{ t.title }}</h1><span class="bal-eyebrow" style="color:var(--text-muted)">{{ t.season }}</span></div>
+</div>
+<div style="padding:14px 20px 0"><x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.Tabs" items="{{ tabsHist }}" value="historial" on-change="{{ noop }}" hint-size="100%,36px"></x-import></div>
+<div style="flex:1;overflow:hidden;padding:18px 20px 0;display:flex;flex-direction:column;gap:14px">
+<x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.MatchResult" score="14-3" game="League of Legends" awarded="{{ t.awarded }}" winner="{{ me }}" loser="{{ mateo }}" hint-size="100%,200px"></x-import>
+<div style="display:flex;gap:10px"><div style="flex:1"><x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.Button" variant="primary" size="md" full-width="{{ true }}" icon="rotate-ccw" hint-size="100%,40px">{{ t.rematch }}</x-import></div><div style="flex:1"><x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.Button" variant="secondary" size="md" full-width="{{ true }}" icon="share-2" hint-size="100%,40px">{{ t.share }}</x-import></div></div>
+<x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.MatchResult" score="—" game="TFT" awarded="{{ t.lostAwarded }}" winner="{{ ana }}" loser="{{ me }}" hint-size="100%,200px"></x-import>
+</div>
+<x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.BottomNav" items="{{ nav }}" value="retos" on-change="{{ noop }}" hint-size="100%,88px"></x-import>
+</div></div>
+
+</div>
+
+<div style="display:flex;align-items:baseline;gap:14px;margin:64px 0 28px;padding-top:40px;border-top:1px solid var(--border-hairline)"><span class="bal-eyebrow" style="color:var(--text-muted)">Desktop · 1440×900</span><span style="font-size:13px;color:var(--text-faint)">Sidebar + feed + columna de estado y ranking (<a href="Wireframes Retos.dc.html#1z">1z</a>).</span></div>
+<div style="display:flex;gap:36px;align-items:flex-start;flex-wrap:wrap">
+
+<div style="display:flex;flex-direction:column;gap:12px" data-screen-label="D01 Con retos">
+<span class="bal-eyebrow" style="color:var(--text-muted)">D01 · Con retos</span>
+<div style="width:1440px;height:900px;background:var(--bg-canvas);border:1px solid var(--border-subtle);border-radius:4px;display:flex;overflow:hidden;position:relative">
+<aside style="width:236px;flex:0 0 auto;border-right:1px solid var(--border-hairline);background:var(--bg-base);display:flex;flex-direction:column">
+<div style="padding:22px 22px 26px;font-family:var(--font-display);font-weight:700;font-size:15px;line-height:.95;letter-spacing:-.03em;text-transform:uppercase">Become<br>a Legend</div>
+<nav style="display:flex;flex-direction:column;gap:2px;padding:0 12px">
+<div style="display:flex;align-items:center;gap:11px;height:38px;padding:0 10px;background:var(--surface-3);border-radius:var(--radius-2);font-size:14px;font-weight:600"><x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.Icon" name="swords" size="{{ 17 }}" hint-size="17px,17px"></x-import>{{ t.navRetos }}<span style="flex:1"></span><x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.Badge" tone="pending" hint-size="auto,20px">2</x-import></div>
+<div style="display:flex;align-items:center;gap:11px;height:38px;padding:0 10px;color:var(--text-muted);font-size:14px;font-weight:500"><x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.Icon" name="trophy" size="{{ 17 }}" hint-size="17px,17px"></x-import>{{ t.navRanking }}</div>
+<div style="display:flex;align-items:center;gap:11px;height:38px;padding:0 10px;color:var(--text-muted);font-size:14px;font-weight:500"><x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.Icon" name="history" size="{{ 17 }}" hint-size="17px,17px"></x-import>{{ t.navHist }}</div>
+<div style="display:flex;align-items:center;gap:11px;height:38px;padding:0 10px;color:var(--text-muted);font-size:14px;font-weight:500"><x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.Icon" name="bell" size="{{ 17 }}" hint-size="17px,17px"></x-import>{{ t.navAvisos }}</div>
+<div style="display:flex;align-items:center;gap:11px;height:38px;padding:0 10px;color:var(--text-muted);font-size:14px;font-weight:500"><x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.Icon" name="coins" size="{{ 17 }}" hint-size="17px,17px"></x-import>{{ t.navMonedas }}</div>
+</nav>
+<div style="padding:16px 22px"><x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.Button" variant="primary" size="md" full-width="{{ true }}" icon="plus" hint-size="100%,40px">{{ t.newChallenge }}</x-import></div>
+<div style="flex:1"></div>
+<div style="padding:16px;border-top:1px solid var(--border-hairline);display:flex;align-items:center;gap:12px"><x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.Avatar" name="Diego Ruiz" tier="oro" hint-size="36px,36px"></x-import><div style="min-width:0"><div style="font-size:13px;font-weight:600">Diego Ruiz</div><div class="bal-num" style="font-size:11px;color:var(--text-faint);margin-top:2px">DiegoR#LAN</div></div></div>
+</aside>
+<div style="flex:1;display:flex;flex-direction:column;min-width:0">
+<div style="height:64px;flex:0 0 auto;border-bottom:1px solid var(--border-hairline);display:flex;align-items:center;gap:14px;padding:0 28px">
+<div style="width:300px"><x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.Input" icon="search" placeholder="{{ t.search }}" on-change="{{ noop }}" hint-size="100%,44px"></x-import></div>
+<div style="flex:1"></div>
+<div style="display:flex;gap:6px"><x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.Tag" selected="{{ isEs }}" on-click="{{ setEs }}" hint-size="40px,28px">ES</x-import><x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.Tag" selected="{{ isEn }}" on-click="{{ setEn }}" hint-size="40px,28px">EN</x-import></div>
+<x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.CoinChip" amount="{{ coins }}" xp="{{ xp }}" level="{{ level }}" hint-size="180px,34px"></x-import>
+<x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.IconButton" icon="bell" aria-label="Avisos" hint-size="40px,40px"></x-import>
+</div>
+<div style="display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:28px;padding:28px;align-items:start;flex:1;overflow:hidden">
+<div style="display:flex;flex-direction:column;gap:18px;min-width:0">
+<div style="display:flex;align-items:baseline;justify-content:space-between"><h1 style="margin:0;font-family:var(--font-display);font-size:28px;font-weight:700;letter-spacing:-.035em">{{ t.title }}</h1><span class="bal-eyebrow" style="color:var(--text-muted)">{{ t.season }}</span></div>
+<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px">
+<x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.StatTile" label="{{ t.statWon }}" value="48" delta="{{ t.statWonDelta }}" icon="trophy" hint-size="100%,96px"></x-import>
+<x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.StatTile" label="{{ t.statStreak }}" value="6" delta="{{ t.statStreakDelta }}" delta-tone="neutral" icon="flame" hint-size="100%,96px"></x-import>
+<x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.StatTile" label="{{ t.statCoins }}" value="1 240" delta="{{ t.statCoinsDelta }}" icon="coins" hint-size="100%,96px"></x-import>
+</div>
+<x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.Tabs" items="{{ tabs }}" value="{{ tab }}" on-change="{{ setTab }}" hint-size="100%,36px"></x-import>
+<x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.ChallengeCard" game="lol" queue="1v1" status="pendiente" stake="{{ 150 }}" xp="{{ 180 }}" meta="{{ t.meta1 }}" challenger="{{ ana }}" opponent="{{ me }}" on-accept="{{ noop }}" on-decline="{{ noop }}" hint-size="100%,250px"></x-import>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+<div style="background:var(--surface-2);border:1px solid var(--border-hairline);border-radius:var(--radius-card);padding:16px;display:flex;flex-direction:column;gap:12px">
+<div style="display:flex;align-items:center;justify-content:space-between"><x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.GameTag" game="lol" short="{{ true }}" hint-size="60px,22px"></x-import><x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.Badge" tone="pending" hint-size="auto,22px">{{ t.pending }}</x-import></div>
+<div><div class="bal-eyebrow" style="color:var(--text-muted)">{{ t.genericKind }}</div><div style="margin-top:6px;font-family:var(--font-display);font-size:19px;font-weight:700;letter-spacing:-.03em;line-height:1.1">{{ t.genericGoal }}</div></div>
+<div style="display:flex;align-items:center;gap:10px"><x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.Avatar" name="Mateo Díaz" tier="esmeralda" size="sm" hint-size="28px,28px"></x-import><span style="font-size:13px;color:var(--text-muted)">{{ t.genericFrom }}</span></div>
+<div style="display:flex;justify-content:space-between;align-items:center;padding-top:10px;border-top:1px solid var(--divider)"><span class="bal-num" style="font-size:13px">{{ t.genericStake }}</span><span class="bal-num" style="font-size:12px;color:var(--text-muted)">{{ t.meta2 }}</span></div>
+<div style="display:flex;gap:8px"><div style="flex:1"><x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.Button" variant="secondary" size="md" full-width="{{ true }}" hint-size="100%,40px">{{ t.accept }}</x-import></div><x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.Button" variant="ghost" size="md" hint-size="90px,40px">{{ t.decline }}</x-import></div>
+</div>
+<div style="background:var(--surface-2);border:1px solid var(--border-hairline);border-radius:var(--radius-card);padding:16px;display:flex;flex-direction:column;gap:12px">
+<div style="display:flex;align-items:center;justify-content:space-between"><x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.GameTag" game="tft" short="{{ true }}" hint-size="60px,22px"></x-import><x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.Badge" tone="live" hint-size="auto,22px">{{ t.live }}</x-import></div>
+<div><div class="bal-eyebrow" style="color:var(--text-muted)">{{ t.liveKind }}</div><div style="margin-top:6px;font-family:var(--font-display);font-size:19px;font-weight:700;letter-spacing:-.03em;line-height:1.1">{{ t.liveGoal }}</div></div>
+<div style="flex:1"></div>
+<div style="display:flex;justify-content:space-between;align-items:baseline"><span class="bal-num" style="font-size:22px;font-weight:600">2 <span style="color:var(--text-faint)">/ 3</span></span><span class="bal-num" style="font-size:12px;color:var(--text-muted)">{{ t.liveMeta }}</span></div>
+<x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.XPBar" value="{{ 2 }}" max="{{ 3 }}" compact="{{ true }}" hint-size="100%,4px"></x-import>
+</div>
+</div>
+</div>
+<div style="display:flex;flex-direction:column;gap:20px">
+<x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.Card" padding="lg" hint-size="100%,150px"><div style="display:flex;align-items:center;justify-content:space-between"><x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.TierBadge" tier="oro" division="II" size="lg" hint-size="120px,40px"></x-import><span class="bal-num" style="font-size:12px;color:var(--text-muted)">#2 / 14</span></div><div style="margin-top:20px"><x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.XPBar" value="{{ xp }}" max="{{ 18000 }}" tier="oro" next-tier="Esmeralda" hint-size="100%,40px"></x-import></div></x-import>
+<x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.Card" padding="none" hint-size="100%,300px">
+<div style="padding:14px 16px;border-bottom:1px solid var(--divider);display:flex;justify-content:space-between;align-items:center"><span class="bal-eyebrow">{{ t.friendsRanking }}</span><x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.Button" variant="ghost" size="sm" icon-after="arrow-right" hint-size="100px,32px">{{ t.seeAll }}</x-import></div>
+<x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.PlayerRow" name="Ana López" handle="AnaL#LAN" tier="gran-maestro" record="31-8" right="{{ retarBtn }}" hint-size="100%,60px"></x-import>
+<x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.PlayerRow" name="Diego Ruiz" handle="DiegoR#LAN" tier="oro" record="14-3" right="{{ vosBadge }}" style="{{ meRow }}" hint-size="100%,60px"></x-import>
+<x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.PlayerRow" name="Mateo Díaz" handle="MateoD#LAN" tier="esmeralda" record="22-11" online="{{ true }}" right="{{ retarBtn }}" hint-size="100%,60px"></x-import>
+<x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.PlayerRow" name="Sofía Marín" handle="SofiM#LAN" tier="plata" record="9-7" right="{{ retarBtn }}" style="{{ lastRow }}" hint-size="100%,60px"></x-import>
+</x-import>
+</div>
+</div>
+</div></div></div>
+
+<div style="display:flex;flex-direction:column;gap:12px" data-screen-label="D02 Vacío">
+<span class="bal-eyebrow" style="color:var(--text-muted)">D02 · Vacío, primera vez</span>
+<div style="width:1440px;height:900px;background:var(--bg-canvas);border:1px solid var(--border-subtle);border-radius:4px;display:flex;overflow:hidden">
+<aside style="width:236px;flex:0 0 auto;border-right:1px solid var(--border-hairline);background:var(--bg-base);display:flex;flex-direction:column">
+<div style="padding:22px 22px 26px;font-family:var(--font-display);font-weight:700;font-size:15px;line-height:.95;letter-spacing:-.03em;text-transform:uppercase">Become<br>a Legend</div>
+<nav style="display:flex;flex-direction:column;gap:2px;padding:0 12px">
+<div style="display:flex;align-items:center;gap:11px;height:38px;padding:0 10px;background:var(--surface-3);border-radius:var(--radius-2);font-size:14px;font-weight:600"><x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.Icon" name="swords" size="{{ 17 }}" hint-size="17px,17px"></x-import>{{ t.navRetos }}</div>
+<div style="display:flex;align-items:center;gap:11px;height:38px;padding:0 10px;color:var(--text-muted);font-size:14px;font-weight:500"><x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.Icon" name="trophy" size="{{ 17 }}" hint-size="17px,17px"></x-import>{{ t.navRanking }}</div>
+<div style="display:flex;align-items:center;gap:11px;height:38px;padding:0 10px;color:var(--text-muted);font-size:14px;font-weight:500"><x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.Icon" name="history" size="{{ 17 }}" hint-size="17px,17px"></x-import>{{ t.navHist }}</div>
+<div style="display:flex;align-items:center;gap:11px;height:38px;padding:0 10px;color:var(--text-muted);font-size:14px;font-weight:500"><x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.Icon" name="bell" size="{{ 17 }}" hint-size="17px,17px"></x-import>{{ t.navAvisos }}</div>
+<div style="display:flex;align-items:center;gap:11px;height:38px;padding:0 10px;color:var(--text-muted);font-size:14px;font-weight:500"><x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.Icon" name="coins" size="{{ 17 }}" hint-size="17px,17px"></x-import>{{ t.navMonedas }}</div>
+</nav>
+<div style="padding:16px 22px"><x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.Button" variant="primary" size="md" full-width="{{ true }}" icon="plus" hint-size="100%,40px">{{ t.newChallenge }}</x-import></div>
+<div style="flex:1"></div>
+<div style="padding:16px;border-top:1px solid var(--border-hairline);display:flex;align-items:center;gap:12px"><x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.Avatar" name="Diego Ruiz" tier="hierro" hint-size="36px,36px"></x-import><div style="min-width:0"><div style="font-size:13px;font-weight:600">Diego Ruiz</div><div class="bal-num" style="font-size:11px;color:var(--text-faint);margin-top:2px">DiegoR#LAN</div></div></div>
+</aside>
+<div style="flex:1;display:flex;flex-direction:column;min-width:0">
+<div style="height:64px;flex:0 0 auto;border-bottom:1px solid var(--border-hairline);display:flex;align-items:center;gap:14px;padding:0 28px">
+<div style="width:300px"><x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.Input" icon="search" placeholder="{{ t.search }}" on-change="{{ noop }}" hint-size="100%,44px"></x-import></div>
+<div style="flex:1"></div>
+<div style="display:flex;gap:6px"><x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.Tag" selected="{{ isEs }}" on-click="{{ setEs }}" hint-size="40px,28px">ES</x-import><x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.Tag" selected="{{ isEn }}" on-click="{{ setEn }}" hint-size="40px,28px">EN</x-import></div>
+<x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.CoinChip" amount="{{ 500 }}" xp="{{ 0 }}" level="{{ 1 }}" hint-size="180px,34px"></x-import>
+<x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.IconButton" icon="bell" aria-label="Avisos" hint-size="40px,40px"></x-import>
+</div>
+<div style="display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:28px;padding:28px;align-items:start;flex:1;overflow:hidden">
+<div style="display:flex;flex-direction:column;gap:18px;min-width:0;height:100%">
+<div style="display:flex;align-items:baseline;justify-content:space-between"><h1 style="margin:0;font-family:var(--font-display);font-size:28px;font-weight:700;letter-spacing:-.035em">{{ t.title }}</h1><span class="bal-eyebrow" style="color:var(--text-muted)">{{ t.season }}</span></div>
+<x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.Tabs" items="{{ tabsEmpty }}" value="para-mi" on-change="{{ noop }}" hint-size="100%,36px"></x-import>
+<div style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:18px;max-width:520px;padding:40px 0">
+<span style="color:var(--text-faint);display:inline-flex"><x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.Icon" name="swords" size="{{ 32 }}" hint-size="32px,32px"></x-import></span>
+<h2 style="margin:0;font-family:var(--font-display);font-size:44px;font-weight:700;letter-spacing:-.04em;line-height:.98">{{ t.emptyTitle }}</h2>
+<p style="margin:0;font-size:16px;line-height:1.55;color:var(--text-muted)">{{ t.emptySub }}</p>
+<div style="display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--surface-2);border:1px solid var(--border-hairline);border-radius:var(--radius-card);align-self:flex-start"><span style="color:var(--amber-500);display:inline-flex"><x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.Icon" name="coins" size="{{ 16 }}" hint-size="16px,16px"></x-import></span><span style="font-size:13px;color:var(--text-muted)">{{ t.emptyCoins }}</span></div>
+<div><x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.Button" variant="primary" size="lg" icon="plus" hint-size="200px,48px">{{ t.emptyCta }}</x-import></div>
+</div>
+</div>
+<div style="display:flex;flex-direction:column;gap:20px">
+<x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.Card" padding="lg" hint-size="100%,150px"><div style="display:flex;align-items:center;justify-content:space-between"><x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.TierBadge" tier="hierro" division="IV" size="lg" hint-size="120px,40px"></x-import><span class="bal-num" style="font-size:12px;color:var(--text-muted)">{{ t.unranked }}</span></div><div style="margin-top:20px"><x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.XPBar" value="{{ 0 }}" max="{{ 1000 }}" tier="hierro" next-tier="Bronce" hint-size="100%,40px"></x-import></div></x-import>
+<x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.Card" padding="none" hint-size="100%,240px">
+<div style="padding:14px 16px;border-bottom:1px solid var(--divider)"><span class="bal-eyebrow">{{ t.friendsPlaying }}</span></div>
+<x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.PlayerRow" name="Ana López" handle="AnaL#LAN" tier="gran-maestro" online="{{ true }}" right="{{ retarBtn }}" hint-size="100%,60px"></x-import>
+<x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.PlayerRow" name="Mateo Díaz" handle="MateoD#LAN" tier="esmeralda" right="{{ retarBtn }}" hint-size="100%,60px"></x-import>
+<x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.PlayerRow" name="Sofía Marín" handle="SofiM#LAN" tier="plata" right="{{ retarBtn }}" style="{{ lastRow }}" hint-size="100%,60px"></x-import>
+</x-import>
+</div>
+</div>
+</div></div></div>
+
+<div style="display:flex;flex-direction:column;gap:12px" data-screen-label="D03 Toast">
+<span class="bal-eyebrow" style="color:var(--text-muted)">D03 · Reto ganado, toast</span>
+<div style="width:1440px;height:900px;background:var(--bg-canvas);border:1px solid var(--border-subtle);border-radius:4px;display:flex;overflow:hidden;position:relative">
+<div style="position:absolute;top:80px;right:28px;width:380px;z-index:2"><x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.Toast" tone="win" title="{{ t.toastTitle }}" message="{{ t.toastMsg }}" on-dismiss="{{ noop }}" hint-size="100%,72px"></x-import></div>
+<aside style="width:236px;flex:0 0 auto;border-right:1px solid var(--border-hairline);background:var(--bg-base);display:flex;flex-direction:column">
+<div style="padding:22px 22px 26px;font-family:var(--font-display);font-weight:700;font-size:15px;line-height:.95;letter-spacing:-.03em;text-transform:uppercase">Become<br>a Legend</div>
+<nav style="display:flex;flex-direction:column;gap:2px;padding:0 12px">
+<div style="display:flex;align-items:center;gap:11px;height:38px;padding:0 10px;background:var(--surface-3);border-radius:var(--radius-2);font-size:14px;font-weight:600"><x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.Icon" name="swords" size="{{ 17 }}" hint-size="17px,17px"></x-import>{{ t.navRetos }}<span style="flex:1"></span><x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.Badge" tone="pending" hint-size="auto,20px">1</x-import></div>
+<div style="display:flex;align-items:center;gap:11px;height:38px;padding:0 10px;color:var(--text-muted);font-size:14px;font-weight:500"><x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.Icon" name="trophy" size="{{ 17 }}" hint-size="17px,17px"></x-import>{{ t.navRanking }}</div>
+<div style="display:flex;align-items:center;gap:11px;height:38px;padding:0 10px;color:var(--text-muted);font-size:14px;font-weight:500"><x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.Icon" name="history" size="{{ 17 }}" hint-size="17px,17px"></x-import>{{ t.navHist }}</div>
+<div style="display:flex;align-items:center;gap:11px;height:38px;padding:0 10px;color:var(--text-muted);font-size:14px;font-weight:500"><x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.Icon" name="bell" size="{{ 17 }}" hint-size="17px,17px"></x-import>{{ t.navAvisos }}</div>
+<div style="display:flex;align-items:center;gap:11px;height:38px;padding:0 10px;color:var(--text-muted);font-size:14px;font-weight:500"><x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.Icon" name="coins" size="{{ 17 }}" hint-size="17px,17px"></x-import>{{ t.navMonedas }}</div>
+</nav>
+<div style="padding:16px 22px"><x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.Button" variant="primary" size="md" full-width="{{ true }}" icon="plus" hint-size="100%,40px">{{ t.newChallenge }}</x-import></div>
+<div style="flex:1"></div>
+<div style="padding:16px;border-top:1px solid var(--border-hairline);display:flex;align-items:center;gap:12px"><x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.Avatar" name="Diego Ruiz" tier="oro" hint-size="36px,36px"></x-import><div style="min-width:0"><div style="font-size:13px;font-weight:600">Diego Ruiz</div><div class="bal-num" style="font-size:11px;color:var(--text-faint);margin-top:2px">DiegoR#LAN</div></div></div>
+</aside>
+<div style="flex:1;display:flex;flex-direction:column;min-width:0">
+<div style="height:64px;flex:0 0 auto;border-bottom:1px solid var(--border-hairline);display:flex;align-items:center;gap:14px;padding:0 28px">
+<div style="width:300px"><x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.Input" icon="search" placeholder="{{ t.search }}" on-change="{{ noop }}" hint-size="100%,44px"></x-import></div>
+<div style="flex:1"></div>
+<div style="display:flex;gap:6px"><x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.Tag" selected="{{ isEs }}" on-click="{{ setEs }}" hint-size="40px,28px">ES</x-import><x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.Tag" selected="{{ isEn }}" on-click="{{ setEn }}" hint-size="40px,28px">EN</x-import></div>
+<x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.CoinChip" amount="{{ 2630 }}" xp="{{ 12580 }}" level="{{ level }}" hint-size="180px,34px"></x-import>
+<x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.IconButton" icon="bell" aria-label="Avisos" hint-size="40px,40px"></x-import>
+</div>
+<div style="display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:28px;padding:28px;align-items:start;flex:1;overflow:hidden">
+<div style="display:flex;flex-direction:column;gap:18px;min-width:0">
+<div style="display:flex;align-items:baseline;justify-content:space-between"><h1 style="margin:0;font-family:var(--font-display);font-size:28px;font-weight:700;letter-spacing:-.035em">{{ t.title }}</h1><span class="bal-eyebrow" style="color:var(--text-muted)">{{ t.season }}</span></div>
+<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px">
+<x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.StatTile" label="{{ t.statWon }}" value="49" delta="{{ t.statWonDelta2 }}" icon="trophy" hint-size="100%,96px"></x-import>
+<x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.StatTile" label="{{ t.statStreak }}" value="7" delta="{{ t.statStreakDelta }}" delta-tone="neutral" icon="flame" hint-size="100%,96px"></x-import>
+<x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.StatTile" label="{{ t.statCoins }}" value="1 390" delta="{{ t.statCoinsDelta2 }}" icon="coins" hint-size="100%,96px"></x-import>
+</div>
+<x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.Tabs" items="{{ tabsHist }}" value="historial" on-change="{{ noop }}" hint-size="100%,36px"></x-import>
+<x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.MatchResult" score="14-3" game="League of Legends" awarded="{{ t.awarded }}" winner="{{ me }}" loser="{{ mateo }}" hint-size="100%,200px"></x-import>
+<div style="display:flex;gap:10px"><x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.Button" variant="primary" size="md" icon="rotate-ccw" hint-size="180px,40px">{{ t.rematch }}</x-import><x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.Button" variant="secondary" size="md" icon="share-2" hint-size="140px,40px">{{ t.share }}</x-import></div>
+</div>
+<div style="display:flex;flex-direction:column;gap:20px">
+<x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.Card" padding="lg" hint-size="100%,150px"><div style="display:flex;align-items:center;justify-content:space-between"><x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.TierBadge" tier="oro" division="II" size="lg" hint-size="120px,40px"></x-import><span class="bal-num" style="font-size:12px;color:var(--text-muted)">#2 / 14</span></div><div style="margin-top:20px"><x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.XPBar" value="{{ 12580 }}" max="{{ 18000 }}" tier="oro" next-tier="Esmeralda" hint-size="100%,40px"></x-import></div></x-import>
+<x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.Card" padding="none" hint-size="100%,300px">
+<div style="padding:14px 16px;border-bottom:1px solid var(--divider);display:flex;justify-content:space-between;align-items:center"><span class="bal-eyebrow">{{ t.friendsRanking }}</span><x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.Button" variant="ghost" size="sm" icon-after="arrow-right" hint-size="100px,32px">{{ t.seeAll }}</x-import></div>
+<x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.PlayerRow" name="Ana López" handle="AnaL#LAN" tier="gran-maestro" record="31-8" right="{{ retarBtn }}" hint-size="100%,60px"></x-import>
+<x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.PlayerRow" name="Diego Ruiz" handle="DiegoR#LAN" tier="oro" record="15-3" right="{{ vosBadge }}" style="{{ meRow }}" hint-size="100%,60px"></x-import>
+<x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.PlayerRow" name="Mateo Díaz" handle="MateoD#LAN" tier="esmeralda" record="22-12" online="{{ true }}" right="{{ retarBtn }}" hint-size="100%,60px"></x-import>
+<x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.PlayerRow" name="Sofía Marín" handle="SofiM#LAN" tier="plata" record="9-7" right="{{ retarBtn }}" style="{{ lastRow }}" hint-size="100%,60px"></x-import>
+</x-import>
+</div>
+</div>
+</div></div></div>
+
+</div></div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;lang&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;default&quot;:&quot;es&quot;,&quot;options&quot;:[&quot;es&quot;,&quot;en&quot;],&quot;tsType&quot;:&quot;'es' | 'en'&quot;,&quot;section&quot;:&quot;Idioma&quot;},&quot;coins&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:2480,&quot;tsType&quot;:&quot;number&quot;,&quot;min&quot;:0,&quot;max&quot;:99999,&quot;step&quot;:10,&quot;section&quot;:&quot;Saldo&quot;},&quot;xp&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:12400,&quot;tsType&quot;:&quot;number&quot;,&quot;min&quot;:0,&quot;max&quot;:99999,&quot;step&quot;:100,&quot;section&quot;:&quot;Saldo&quot;},&quot;level&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:37,&quot;tsType&quot;:&quot;number&quot;,&quot;min&quot;:1,&quot;max&quot;:99,&quot;section&quot;:&quot;Saldo&quot;}}">
+const COPY = {
+  es: {
+    title: 'Retos', season: 'Temporada 3 · 41 d',
+    tabForMe: 'Para mí', tabSent: 'Enviados', tabHist: 'Historial',
+    meta1: 'hace 2 h · expira en 4 h', meta2: 'expira en 1 d', pending: 'Pendiente', live: 'En curso',
+    genericKind: 'Reto de constancia', genericGoal: 'Gana 3 partidas con Ahri en 3 días', genericFrom: 'Mateo te lo mandó', genericStake: '150 monedas · +180 XP',
+    liveKind: 'Reto propio · TFT', liveGoal: 'Top 4 tres veces esta semana', liveMeta: 'quedan 2 d',
+    accept: 'Aceptar', decline: 'No',
+    emptyTitle: 'Todavía no tenés retos.', emptySub: 'Mandá el primero a un amigo o ponete uno a vos mismo. El resultado lo leemos de la API del juego cuando termina la partida.',
+    emptyCoins: 'Empezás con 500 monedas de regalo.', emptyCta: 'Crear mi primer reto', friendsPlaying: 'Amigos jugando ahora',
+    toastTitle: 'Ganaste el reto contra Mateo', toastMsg: '+150 monedas · +180 XP · verificado por la API de Riot',
+    awarded: '+180 XP · +150 monedas', lostAwarded: '−80 monedas · verificado', rematch: 'Revancha', share: 'Compartir',
+    navRetos: 'Retos', navRanking: 'Ranking', navCrear: 'Crear', navAvisos: 'Avisos', navPerfil: 'Perfil', navHist: 'Historial', navMonedas: 'Monedas',
+    newChallenge: 'Nuevo reto', search: 'Buscar amigos o retos', retar: 'Retar', vos: 'Vos',
+    statWon: 'Retos ganados', statWonDelta: '+3 esta semana', statWonDelta2: '+4 esta semana', statStreak: 'Racha', statStreakDelta: 'Mejor: 11', statCoins: 'Monedas ganadas', statCoinsDelta: '+180 hoy', statCoinsDelta2: '+330 hoy',
+    friendsRanking: 'Ranking entre amigos', seeAll: 'Ver todo', unranked: 'sin partidas'
+  },
+  en: {
+    title: 'Challenges', season: 'Season 3 · 41 d',
+    tabForMe: 'For me', tabSent: 'Sent', tabHist: 'History',
+    meta1: '2 h ago · expires in 4 h', meta2: 'expires in 1 d', pending: 'Pending', live: 'In progress',
+    genericKind: 'Consistency challenge', genericGoal: 'Win 3 games with Ahri in 3 days', genericFrom: 'Mateo sent it to you', genericStake: '150 coins · +180 XP',
+    liveKind: 'Self challenge · TFT', liveGoal: 'Top 4 three times this week', liveMeta: '2 d left',
+    accept: 'Accept', decline: 'No',
+    emptyTitle: 'No challenges yet.', emptySub: 'Send the first one to a friend or set one for yourself. We read the result from the game\u2019s API when the match ends.',
+    emptyCoins: 'You start with 500 free coins.', emptyCta: 'Create my first challenge', friendsPlaying: 'Friends playing now',
+    toastTitle: 'You won the challenge against Mateo', toastMsg: '+150 coins · +180 XP · verified by the Riot API',
+    awarded: '+180 XP · +150 coins', lostAwarded: '\u221280 coins · verified', rematch: 'Rematch', share: 'Share',
+    navRetos: 'Challenges', navRanking: 'Ranking', navCrear: 'Create', navAvisos: 'Alerts', navPerfil: 'Profile', navHist: 'History', navMonedas: 'Coins',
+    newChallenge: 'New challenge', search: 'Search friends or challenges', retar: 'Challenge', vos: 'You',
+    statWon: 'Challenges won', statWonDelta: '+3 this week', statWonDelta2: '+4 this week', statStreak: 'Streak', statStreakDelta: 'Best: 11', statCoins: 'Coins earned', statCoinsDelta: '+180 today', statCoinsDelta2: '+330 today',
+    friendsRanking: 'Friends ranking', seeAll: 'See all', unranked: 'no games yet'
+  }
+};
+class Component extends DCLogic {
+  state = { lang: null, tab: 'para-mi' };
+  renderVals() {
+    const lang = this.state.lang ?? this.props.lang ?? 'es';
+    const t = COPY[lang];
+    const DS = window.BecomeALegendDesignSystem_cbebf2 || {};
+    const retarBtn = DS.Button ? React.createElement(DS.Button, { size: 'sm', variant: 'secondary' }, t.retar) : null;
+    const vosBadge = DS.Badge ? React.createElement(DS.Badge, { tone: 'neutral' }, t.vos) : null;
+    return {
+      lang, t, isEs: lang === 'es', isEn: lang === 'en',
+      setEs: () => this.setState({ lang: 'es' }), setEn: () => this.setState({ lang: 'en' }), setLang: (v) => this.setState({ lang: v }),
+      langTabs: [{ value: 'es', label: 'Español' }, { value: 'en', label: 'English' }],
+      coins: this.props.coins ?? 2480, xp: this.props.xp ?? 12400, level: this.props.level ?? 37,
+      me: { name: 'Diego Ruiz', handle: 'DiegoR#LAN', tier: 'oro', record: '14-3' },
+      ana: { name: 'Ana López', handle: 'AnaL#LAN', tier: 'gran-maestro', record: '31-8' },
+      mateo: { name: 'Mateo Díaz', handle: 'MateoD#LAN', tier: 'esmeralda', record: '22-11' },
+      tabs: [{ value: 'para-mi', label: t.tabForMe, count: 2 }, { value: 'enviados', label: t.tabSent, count: 1 }, { value: 'historial', label: t.tabHist }],
+      tabsEmpty: [{ value: 'para-mi', label: t.tabForMe }, { value: 'enviados', label: t.tabSent }, { value: 'historial', label: t.tabHist }],
+      tabsHist: [{ value: 'para-mi', label: t.tabForMe, count: 1 }, { value: 'enviados', label: t.tabSent }, { value: 'historial', label: t.tabHist }],
+      tab: this.state.tab, setTab: (v) => this.setState({ tab: v }),
+      nav: [
+        { value: 'retos', label: t.navRetos, icon: 'swords', badge: 2 },
+        { value: 'ranking', label: t.navRanking, icon: 'trophy' },
+        { value: 'crear', label: t.navCrear, icon: 'plus' },
+        { value: 'avisos', label: t.navAvisos, icon: 'bell' },
+        { value: 'perfil', label: t.navPerfil, icon: 'user' }
+      ],
+      retarBtn, vosBadge,
+      lastRow: { borderBottom: 0 }, meRow: { background: 'var(--surface-3)' },
+      noop: () => {}
+    };
+  }
+}
+</script>
+</body>
+</html>

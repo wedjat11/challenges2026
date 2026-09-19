@@ -1,0 +1,12 @@
+# Optional recovery hint, not an authority. Native status is authoritative.
+change: challenge-ui
+artifactStore: hybrid
+dependsOn: []
+phases:
+  explore: done   # 2026-09-18, Engram obs #46 + exploration.md
+  research: done  # 2026-09-19, design export mapped; research.md + Engram sdd/challenge-ui/research
+  propose: done   # 2026-09-18, proposal.md + Engram sdd/challenge-ui/proposal
+  spec: done   # 2026-09-18
+  design: done   # 2026-09-18
+  tasks: done   # 2026-09-18
+  apply: in-progress  # 2026-09-19, S0 delivered as S0a + S0b; S1–S7 pending

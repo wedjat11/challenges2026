@@ -1,0 +1,44 @@
+# openspec/config.yaml
+schema: spec-driven
+
+context: |
+  Tech stack: Next.js 16 App Router, React 19, TypeScript strict, Tailwind 4,
+  Cloudflare Workers via @opennextjs/cloudflare, D1 + Drizzle ORM, Auth.js
+  (Discord, JWT sessions), zod 4, pnpm.
+  Architecture: hexagonal. src/domain (pure) + src/domain/ports; src/application
+  (use cases, typed results over thrown errors); src/adapters/{db,riot,queue};
+  src/app (Next routes: server page + "use server" actions + one "use client"
+  form with useActionState); src/lib (cross-cutting).
+  Testing: Vitest 5 (domain, application, adapters; node environment, no DOM),
+  in-memory SQLite replaying drizzle/*.sql for adapters. Playwright planned for
+  e2e. Strict TDD: observed RED before implementation, then GREEN.
+  Style: doc comments explain why; factories over classes; ports in the domain's
+  vocabulary; application code never imports from src/adapters; no `any`; no
+  casts in tests. Artifacts, code, comments and UI copy in English.
+
+rules:
+  proposal:
+    - State every product assumption explicitly so the owner can reject it
+    - Include rollback plan for risky changes
+  specs:
+    - Use Given/When/Then for scenarios
+    - Use RFC 2119 keywords (MUST, SHALL, SHOULD, MAY)
+  design:
+    - Document architecture decisions with rationale
+    - Keep application code free of src/adapters imports
+  tasks:
+    - Group by phase, use hierarchical numbering
+    - Keep tasks completable in one session
+    - Plan chained PR slices under the 400 changed-line review budget
+  apply:
+    guidelines:
+      - Follow existing code patterns (see src/app/account for the route trio)
+      - Read node_modules/next/dist/docs before writing Next-specific code
+    tdd: true
+    test_command: "pnpm test"
+  verify:
+    test_command: "pnpm test"
+    build_command: "pnpm typecheck && pnpm lint && pnpm build"
+    coverage_threshold: 0
+  archive:
+    - Warn before merging destructive deltas

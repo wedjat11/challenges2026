@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet><meta name="design_doc_mode" content="canvas">
+<link rel="stylesheet" href="_ds/become-a-legend-design-system-cbebf259-7f79-47a7-9501-a332cdf16208/tokens/fonts.css">
+<link rel="stylesheet" href="_ds/become-a-legend-design-system-cbebf259-7f79-47a7-9501-a332cdf16208/tokens/colors.css">
+<link rel="stylesheet" href="_ds/become-a-legend-design-system-cbebf259-7f79-47a7-9501-a332cdf16208/tokens/tiers.css">
+<link rel="stylesheet" href="_ds/become-a-legend-design-system-cbebf259-7f79-47a7-9501-a332cdf16208/tokens/typography.css">
+<link rel="stylesheet" href="_ds/become-a-legend-design-system-cbebf259-7f79-47a7-9501-a332cdf16208/tokens/spacing.css">
+<link rel="stylesheet" href="_ds/become-a-legend-design-system-cbebf259-7f79-47a7-9501-a332cdf16208/tokens/radius.css">
+<link rel="stylesheet" href="_ds/become-a-legend-design-system-cbebf259-7f79-47a7-9501-a332cdf16208/tokens/elevation.css">
+<link rel="stylesheet" href="_ds/become-a-legend-design-system-cbebf259-7f79-47a7-9501-a332cdf16208/tokens/motion.css">
+<link rel="stylesheet" href="_ds/become-a-legend-design-system-cbebf259-7f79-47a7-9501-a332cdf16208/tokens/base.css">
+<link rel="stylesheet" href="_ds/become-a-legend-design-system-cbebf259-7f79-47a7-9501-a332cdf16208/styles.css">
+<script src="https://unpkg.com/lucide@0.544.0/dist/umd/lucide.js"></script>
+<script src="_ds/become-a-legend-design-system-cbebf259-7f79-47a7-9501-a332cdf16208/_ds_bundle.js"></script>
+<style>body{margin:0;background:var(--bg-base,#08090A)}a{color:var(--text-primary)}a:hover{opacity:.72}@keyframes bal-spin{to{transform:rotate(360deg)}}@media (prefers-reduced-motion:reduce){[style*="bal-spin"]{animation:none!important}}</style></helmet>
+<div style="min-height:100vh;background:var(--bg-base);padding:48px 40px;font-family:var(--font-body);color:var(--text-primary)">
+<div style="display:flex;align-items:center;gap:20px;margin-bottom:28px;flex-wrap:wrap">
+<span class="bal-eyebrow" style="color:var(--text-muted)">Maqueta 01 · Login</span>
+<span style="font-size:13px;color:var(--text-faint)">Basado en el wireframe <a href="Wireframes Retos.dc.html#1e">1e</a> · 390×844 y 1440×900</span>
+<div style="flex:1"></div>
+<div style="display:flex;align-items:center;gap:10px"><span style="font-size:13px;color:var(--text-muted)">Idioma de todas las pantallas</span><x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.Tabs" items="{{ langTabs }}" value="{{ lang }}" on-change="{{ setLang }}" hint-size="140px,36px"></x-import></div>
+</div>
+
+<div style="display:flex;gap:36px;align-items:flex-start;flex-wrap:wrap">
+
+<div style="display:flex;flex-direction:column;gap:12px" data-screen-label="01 Principal">
+<span class="bal-eyebrow" style="color:var(--text-muted)">01 · Principal</span>
+<div style="width:390px;height:844px;background:var(--bg-canvas);border:1px solid var(--border-subtle);border-radius:4px;display:flex;flex-direction:column;overflow:hidden">
+<div style="height:44px;display:flex;align-items:center;padding:0 24px;flex:0 0 auto"><span class="bal-num" style="font-size:13px;font-weight:600">21:04</span></div>
+<div style="flex:1;display:flex;flex-direction:column;padding:20px 24px 32px">
+<div style="display:flex;align-items:flex-start;justify-content:space-between">
+<div style="font-family:var(--font-display);font-size:13px;font-weight:700;line-height:.92;letter-spacing:-.04em;text-transform:uppercase">Become<br>a Legend</div>
+<div style="display:flex;gap:6px"><x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.Tag" selected="{{ isEs }}" on-click="{{ setEs }}" hint-size="40px,28px">ES</x-import><x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.Tag" selected="{{ isEn }}" on-click="{{ setEn }}" hint-size="40px,28px">EN</x-import></div>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:20px">
+<sc-if value="{{ showEyebrow }}" hint-placeholder-val="{{ true }}"><span class="bal-eyebrow" style="color:var(--text-muted)">{{ t.eyebrow }}</span></sc-if>
+<h1 style="margin:0;font-family:var(--font-display);font-size:52px;font-weight:700;line-height:.95;letter-spacing:-.045em">{{ t.h1a }}<br>{{ t.h1b }}<br>{{ t.h1c }}</h1>
+<p style="margin:0;font-size:16px;line-height:1.55;color:var(--text-muted);max-width:320px">{{ t.sub }}</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:14px">
+<x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.Button" variant="primary" size="lg" full-width="{{ true }}" icon="gamepad-2" hint-size="100%,48px">{{ t.cta }}</x-import>
+<p style="margin:0;font-size:13px;line-height:1.5;color:var(--text-muted);text-align:center">{{ t.note }}</p>
+<sc-if value="{{ showLegal }}" hint-placeholder-val="{{ true }}"><p style="margin:0;font-size:12px;line-height:1.5;color:var(--text-faint);text-align:center">{{ t.legal }}</p></sc-if>
+</div>
+</div></div></div>
+
+<div style="display:flex;flex-direction:column;gap:12px" data-screen-label="02 Permisos">
+<span class="bal-eyebrow" style="color:var(--text-muted)">02 · Permisos, antes de ir a Riot</span>
+<div style="width:390px;height:844px;background:var(--bg-canvas);border:1px solid var(--border-subtle);border-radius:4px;display:flex;flex-direction:column;overflow:hidden">
+<div style="height:44px;display:flex;align-items:center;padding:0 24px;flex:0 0 auto"><span class="bal-num" style="font-size:13px;font-weight:600">21:04</span></div>
+<div style="flex:1;display:flex;flex-direction:column;padding:12px 24px 32px">
+<div style="display:flex;align-items:center;justify-content:space-between;height:40px"><x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.IconButton" icon="arrow-left" variant="ghost" aria-label="Volver" hint-size="40px,40px"></x-import><span class="bal-eyebrow" style="color:var(--text-muted)">{{ t.step1 }}</span><span style="width:40px"></span></div>
+<h2 style="margin:24px 0 0;font-family:var(--font-display);font-size:30px;font-weight:700;line-height:1;letter-spacing:-.035em">{{ t.permTitle }}</h2>
+<p style="margin:12px 0 0;font-size:14px;line-height:1.55;color:var(--text-muted)">{{ t.permSub }}</p>
+<div style="margin-top:28px;background:var(--surface-2);border:1px solid var(--border-hairline);border-radius:4px;padding:0 20px">
+<div style="display:flex;gap:14px;align-items:flex-start;padding:18px 0;border-bottom:1px solid var(--divider)"><span style="color:var(--text-muted);display:inline-flex;margin-top:2px"><x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.Icon" name="user" size="{{ 17 }}" hint-size="17px,17px"></x-import></span><div><div style="font-size:15px;font-weight:600">{{ t.p1t }}</div><div style="margin-top:3px;font-size:13px;line-height:1.5;color:var(--text-muted)">{{ t.p1d }}</div></div></div>
+<div style="display:flex;gap:14px;align-items:flex-start;padding:18px 0;border-bottom:1px solid var(--divider)"><span style="color:var(--text-muted);display:inline-flex;margin-top:2px"><x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.Icon" name="shield-check" size="{{ 17 }}" hint-size="17px,17px"></x-import></span><div><div style="font-size:15px;font-weight:600">{{ t.p2t }}</div><div style="margin-top:3px;font-size:13px;line-height:1.5;color:var(--text-muted)">{{ t.p2d }}</div></div></div>
+<div style="display:flex;gap:14px;align-items:flex-start;padding:18px 0"><span style="color:var(--text-muted);display:inline-flex;margin-top:2px"><x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.Icon" name="trophy" size="{{ 17 }}" hint-size="17px,17px"></x-import></span><div><div style="font-size:15px;font-weight:600">{{ t.p3t }}</div><div style="margin-top:3px;font-size:13px;line-height:1.5;color:var(--text-muted)">{{ t.p3d }}</div></div></div>
+</div>
+<div style="margin-top:20px;display:flex;gap:12px;align-items:flex-start"><span style="color:var(--text-muted);display:inline-flex;margin-top:1px"><x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.Icon" name="lock" size="{{ 15 }}" hint-size="15px,15px"></x-import></span><p style="margin:0;font-size:13px;line-height:1.5;color:var(--text-muted)">{{ t.permNote }}</p></div>
+<div style="flex:1"></div>
+<div style="display:flex;flex-direction:column;gap:10px">
+<x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.Button" variant="primary" size="lg" full-width="{{ true }}" icon-after="arrow-right" hint-size="100%,48px">{{ t.permCta }}</x-import>
+<x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.Button" variant="ghost" size="lg" full-width="{{ true }}" hint-size="100%,48px">{{ t.notNow }}</x-import>
+</div>
+</div></div></div>
+
+<div style="display:flex;flex-direction:column;gap:12px" data-screen-label="03 Conectando">
+<span class="bal-eyebrow" style="color:var(--text-muted)">03 · Conectando con Riot</span>
+<div style="width:390px;height:844px;background:var(--bg-canvas);border:1px solid var(--border-subtle);border-radius:4px;display:flex;flex-direction:column;overflow:hidden">
+<div style="height:44px;display:flex;align-items:center;padding:0 24px;flex:0 0 auto"><span class="bal-num" style="font-size:13px;font-weight:600">21:04</span></div>
+<div style="flex:1;display:flex;flex-direction:column;padding:20px 24px 32px">
+<div style="font-family:var(--font-display);font-size:13px;font-weight:700;line-height:.92;letter-spacing:-.04em;text-transform:uppercase">Become<br>a Legend</div>
+<div style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:20px">
+<span class="bal-eyebrow" style="color:var(--red-500)">● {{ t.connecting }}</span>
+<h2 style="margin:0;font-family:var(--font-display);font-size:40px;font-weight:700;line-height:.98;letter-spacing:-.04em">{{ t.connTitle }}</h2>
+<p style="margin:0;font-size:15px;line-height:1.55;color:var(--text-muted);max-width:300px">{{ t.connSub }}</p>
+<div style="display:flex;flex-direction:column;gap:10px;margin-top:8px">
+<div style="display:flex;align-items:center;gap:12px;font-size:14px"><span style="color:var(--green-500);display:inline-flex"><x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.Icon" name="circle-check" size="{{ 16 }}" hint-size="16px,16px"></x-import></span><span>{{ t.s1 }}</span></div>
+<div style="display:flex;align-items:center;gap:12px;font-size:14px"><span style="color:var(--red-500);display:inline-flex;animation:bal-spin 1s linear infinite"><x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.Icon" name="loader-circle" size="{{ 16 }}" hint-size="16px,16px"></x-import></span><span>{{ t.s2 }}</span></div>
+<div style="display:flex;align-items:center;gap:12px;font-size:14px;color:var(--text-faint)"><span style="display:inline-flex;width:16px;height:16px;border:1.5px solid var(--border-strong);border-radius:50%"></span><span>{{ t.s3 }}</span></div>
+</div>
+</div>
+<div style="display:flex;flex-direction:column;gap:14px">
+<x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.Button" variant="primary" size="lg" full-width="{{ true }}" loading="{{ true }}" hint-size="100%,48px">{{ t.cta }}</x-import>
+<p style="margin:0;font-size:13px;line-height:1.5;color:var(--text-muted);text-align:center">{{ t.dontClose }}</p>
+</div>
+</div></div></div>
+
+<div style="display:flex;flex-direction:column;gap:12px" data-screen-label="04 Error">
+<span class="bal-eyebrow" style="color:var(--text-muted)">04 · Error de conexión</span>
+<div style="width:390px;height:844px;background:var(--bg-canvas);border:1px solid var(--border-subtle);border-radius:4px;display:flex;flex-direction:column;overflow:hidden">
+<div style="height:44px;display:flex;align-items:center;padding:0 24px;flex:0 0 auto"><span class="bal-num" style="font-size:13px;font-weight:600">21:04</span></div>
+<div style="flex:1;display:flex;flex-direction:column;padding:20px 24px 32px">
+<div style="font-family:var(--font-display);font-size:13px;font-weight:700;line-height:.92;letter-spacing:-.04em;text-transform:uppercase">Become<br>a Legend</div>
+<div style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:20px">
+<span style="color:var(--text-muted);display:inline-flex"><x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.Icon" name="circle-alert" size="{{ 28 }}" hint-size="28px,28px"></x-import></span>
+<h2 style="margin:0;font-family:var(--font-display);font-size:40px;font-weight:700;line-height:.98;letter-spacing:-.04em">{{ t.errTitle }}</h2>
+<p style="margin:0;font-size:15px;line-height:1.55;color:var(--text-muted);max-width:310px">{{ t.errSub }}</p>
+<div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:var(--surface-2);border:1px solid var(--border-hairline);border-radius:4px"><span class="bal-eyebrow" style="color:var(--text-muted)">Riot · auth timeout</span><span class="bal-num" style="font-size:13px;color:var(--text-muted)">21:04:32</span></div>
+</div>
+<div style="display:flex;flex-direction:column;gap:10px">
+<x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.Button" variant="primary" size="lg" full-width="{{ true }}" icon="gamepad-2" hint-size="100%,48px">{{ t.retry }}</x-import>
+<x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.Button" variant="ghost" size="lg" full-width="{{ true }}" icon-after="arrow-right" hint-size="100%,48px">{{ t.status }}</x-import>
+</div>
+</div></div></div>
+
+<div style="display:flex;flex-direction:column;gap:12px" data-screen-label="05 Cuenta nueva">
+<span class="bal-eyebrow" style="color:var(--text-muted)">05 · Cuenta nueva, nombre visible</span>
+<div style="width:390px;height:844px;background:var(--bg-canvas);border:1px solid var(--border-subtle);border-radius:4px;display:flex;flex-direction:column;overflow:hidden">
+<div style="height:44px;display:flex;align-items:center;padding:0 24px;flex:0 0 auto"><span class="bal-num" style="font-size:13px;font-weight:600">21:04</span></div>
+<div style="flex:1;display:flex;flex-direction:column;padding:12px 24px 32px">
+<div style="display:flex;align-items:center;justify-content:space-between;height:40px"><span style="width:40px"></span><span class="bal-eyebrow" style="color:var(--text-muted)">{{ t.step2 }}</span><span style="width:40px"></span></div>
+<div style="display:flex;gap:6px;margin-top:8px"><span style="height:3px;flex:1;background:var(--red-500);border-radius:2px"></span><span style="height:3px;flex:1;background:var(--red-500);border-radius:2px"></span></div>
+<div style="margin-top:28px;display:flex;align-items:center;gap:14px;padding:14px 16px;background:var(--surface-2);border:1px solid var(--border-hairline);border-radius:4px">
+<x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.Avatar" name="Diego Ruiz" tier="oro" size="md" hint-size="40px,40px"></x-import>
+<div style="flex:1;min-width:0"><div class="bal-num" style="font-size:14px;font-weight:600">DiegoR#LAN</div><div style="margin-top:2px;font-size:13px;color:var(--text-muted)">{{ t.acct }}</div></div>
+<x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.Badge" tone="success" hint-size="auto,22px">{{ t.connected }}</x-import>
+</div>
+<h2 style="margin:32px 0 0;font-family:var(--font-display);font-size:30px;font-weight:700;line-height:1;letter-spacing:-.035em">{{ t.nameTitle }}</h2>
+<p style="margin:12px 0 0;font-size:14px;line-height:1.55;color:var(--text-muted)">{{ t.nameSub }}</p>
+<div style="margin-top:28px"><x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.Input" label="{{ t.nameLabel }}" value="Diego" icon="user" suffix="5 / 20" hint="{{ t.nameHint }}" on-change="{{ noop }}" hint-size="100%,92px"></x-import></div>
+<div style="flex:1"></div>
+<x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.Button" variant="primary" size="lg" full-width="{{ true }}" hint-size="100%,48px">{{ t.start }}</x-import>
+</div></div></div>
+
+</div>
+
+<div style="display:flex;align-items:baseline;gap:14px;margin:64px 0 28px;padding-top:40px;border-top:1px solid var(--border-hairline)"><span class="bal-eyebrow" style="color:var(--text-muted)">Desktop · 1440×900</span><span style="font-size:13px;color:var(--text-faint)">Mismo flujo, misma copy. Panel de marca a la izquierda, panel de acceso a la derecha. El selector de idioma vive arriba a la derecha del panel de acceso.</span></div>
+<div style="display:flex;gap:36px;align-items:flex-start;flex-wrap:wrap">
+
+<div style="display:flex;flex-direction:column;gap:12px" data-screen-label="D01 Principal">
+<span class="bal-eyebrow" style="color:var(--text-muted)">D01 · Principal</span>
+<div style="width:1440px;height:900px;background:var(--bg-canvas);border:1px solid var(--border-subtle);border-radius:4px;display:grid;grid-template-columns:1fr 560px;overflow:hidden">
+<div style="padding:40px 56px 48px;display:flex;flex-direction:column;justify-content:space-between;border-right:1px solid var(--border-hairline)">
+<div style="font-family:var(--font-display);font-size:16px;font-weight:700;line-height:.92;letter-spacing:-.04em;text-transform:uppercase">Become<br>a Legend</div>
+<div style="display:flex;flex-direction:column;gap:28px">
+<span class="bal-eyebrow" style="color:var(--text-muted)">{{ t.eyebrow }}</span>
+<h1 style="margin:0;font-family:var(--font-display);font-size:104px;font-weight:700;line-height:.92;letter-spacing:-.045em">{{ t.h1a }}<br>{{ t.h1b }}<br>{{ t.h1c }}</h1>
+<p style="margin:0;font-size:19px;line-height:1.55;color:var(--text-muted);max-width:520px">{{ t.sub }}</p>
+</div>
+<div style="display:flex;height:4px"><span style="flex:1;background:var(--red-500)"></span><span style="flex:1;background:var(--surface-raised)"></span></div>
+</div>
+<div style="padding:40px 64px 48px;display:flex;flex-direction:column;background:var(--surface-1)">
+<div style="display:flex;justify-content:flex-end;gap:6px"><x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.Tag" selected="{{ isEs }}" on-click="{{ setEs }}" hint-size="40px,28px">ES</x-import><x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.Tag" selected="{{ isEn }}" on-click="{{ setEn }}" hint-size="40px,28px">EN</x-import></div>
+<div style="flex:1;display:flex;flex-direction:column;justify-content:center">
+<h2 style="margin:0;font-family:var(--font-display);font-size:36px;font-weight:700;line-height:1;letter-spacing:-.035em">{{ t.dTitle }}</h2>
+<p style="margin:14px 0 0;font-size:15px;line-height:1.55;color:var(--text-muted)">{{ t.dSub }}</p>
+<div style="margin-top:36px;display:flex;flex-direction:column;gap:14px">
+<x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.Button" variant="primary" size="lg" full-width="{{ true }}" icon="gamepad-2" hint-size="100%,48px">{{ t.cta }}</x-import>
+<p style="margin:0;font-size:12px;line-height:1.5;color:var(--text-faint);text-align:center">{{ t.legal }}</p>
+</div>
+<div style="margin-top:48px;padding-top:24px;border-top:1px solid var(--divider);display:flex;flex-direction:column;gap:12px">
+<div style="display:flex;align-items:center;gap:12px;font-size:14px;color:var(--text-muted)"><span style="display:inline-flex"><x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.Icon" name="shield-check" size="{{ 16 }}" hint-size="16px,16px"></x-import></span><span>{{ t.trust1 }}</span></div>
+<div style="display:flex;align-items:center;gap:12px;font-size:14px;color:var(--text-muted)"><span style="display:inline-flex"><x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.Icon" name="lock" size="{{ 16 }}" hint-size="16px,16px"></x-import></span><span>{{ t.trust2 }}</span></div>
+</div>
+</div>
+</div></div></div>
+
+<div style="display:flex;flex-direction:column;gap:12px" data-screen-label="D02 Permisos">
+<span class="bal-eyebrow" style="color:var(--text-muted)">D02 · Permisos, antes de ir a Riot</span>
+<div style="width:1440px;height:900px;background:var(--bg-canvas);border:1px solid var(--border-subtle);border-radius:4px;display:grid;grid-template-columns:1fr 560px;overflow:hidden">
+<div style="padding:40px 56px 48px;display:flex;flex-direction:column;justify-content:space-between;border-right:1px solid var(--border-hairline)">
+<div style="font-family:var(--font-display);font-size:16px;font-weight:700;line-height:.92;letter-spacing:-.04em;text-transform:uppercase">Become<br>a Legend</div>
+<div style="display:flex;flex-direction:column;gap:28px">
+<span class="bal-eyebrow" style="color:var(--text-muted)">{{ t.step1 }}</span>
+<h1 style="margin:0;font-family:var(--font-display);font-size:76px;font-weight:700;line-height:.95;letter-spacing:-.045em;max-width:720px">{{ t.permTitle }}</h1>
+<p style="margin:0;font-size:19px;line-height:1.55;color:var(--text-muted);max-width:520px">{{ t.permSubD }}</p>
+</div>
+<div style="display:flex;height:4px"><span style="flex:1;background:var(--red-500)"></span><span style="flex:1;background:var(--surface-raised)"></span></div>
+</div>
+<div style="padding:40px 64px 48px;display:flex;flex-direction:column;background:var(--surface-1)">
+<div style="display:flex;justify-content:flex-end;gap:6px"><x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.Tag" selected="{{ isEs }}" on-click="{{ setEs }}" hint-size="40px,28px">ES</x-import><x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.Tag" selected="{{ isEn }}" on-click="{{ setEn }}" hint-size="40px,28px">EN</x-import></div>
+<div style="flex:1;display:flex;flex-direction:column;justify-content:center">
+<div style="background:var(--surface-2);border:1px solid var(--border-hairline);border-radius:4px;padding:0 24px">
+<div style="display:flex;gap:16px;align-items:flex-start;padding:22px 0;border-bottom:1px solid var(--divider)"><span style="color:var(--text-muted);display:inline-flex;margin-top:2px"><x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.Icon" name="user" size="{{ 17 }}" hint-size="17px,17px"></x-import></span><div><div style="font-size:16px;font-weight:600">{{ t.p1t }}</div><div style="margin-top:4px;font-size:14px;line-height:1.5;color:var(--text-muted)">{{ t.p1d }}</div></div></div>
+<div style="display:flex;gap:16px;align-items:flex-start;padding:22px 0;border-bottom:1px solid var(--divider)"><span style="color:var(--text-muted);display:inline-flex;margin-top:2px"><x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.Icon" name="shield-check" size="{{ 17 }}" hint-size="17px,17px"></x-import></span><div><div style="font-size:16px;font-weight:600">{{ t.p2t }}</div><div style="margin-top:4px;font-size:14px;line-height:1.5;color:var(--text-muted)">{{ t.p2d }}</div></div></div>
+<div style="display:flex;gap:16px;align-items:flex-start;padding:22px 0"><span style="color:var(--text-muted);display:inline-flex;margin-top:2px"><x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.Icon" name="trophy" size="{{ 17 }}" hint-size="17px,17px"></x-import></span><div><div style="font-size:16px;font-weight:600">{{ t.p3t }}</div><div style="margin-top:4px;font-size:14px;line-height:1.5;color:var(--text-muted)">{{ t.p3d }}</div></div></div>
+</div>
+<div style="margin-top:20px;display:flex;gap:12px;align-items:flex-start"><span style="color:var(--text-muted);display:inline-flex;margin-top:2px"><x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.Icon" name="lock" size="{{ 15 }}" hint-size="15px,15px"></x-import></span><p style="margin:0;font-size:14px;line-height:1.5;color:var(--text-muted)">{{ t.permNote }}</p></div>
+<div style="margin-top:36px;display:flex;gap:12px">
+<x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.Button" variant="ghost" size="lg" hint-size="120px,48px">{{ t.notNow }}</x-import>
+<div style="flex:1"><x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.Button" variant="primary" size="lg" full-width="{{ true }}" icon-after="arrow-right" hint-size="100%,48px">{{ t.permCta }}</x-import></div>
+</div>
+</div>
+</div></div></div>
+
+<div style="display:flex;flex-direction:column;gap:12px" data-screen-label="D03 Conectando">
+<span class="bal-eyebrow" style="color:var(--text-muted)">D03 · Conectando con Riot</span>
+<div style="width:1440px;height:900px;background:var(--bg-canvas);border:1px solid var(--border-subtle);border-radius:4px;display:grid;grid-template-columns:1fr 560px;overflow:hidden">
+<div style="padding:40px 56px 48px;display:flex;flex-direction:column;justify-content:space-between;border-right:1px solid var(--border-hairline)">
+<div style="font-family:var(--font-display);font-size:16px;font-weight:700;line-height:.92;letter-spacing:-.04em;text-transform:uppercase">Become<br>a Legend</div>
+<div style="display:flex;flex-direction:column;gap:28px">
+<span class="bal-eyebrow" style="color:var(--red-500)">● {{ t.connecting }}</span>
+<h1 style="margin:0;font-family:var(--font-display);font-size:76px;font-weight:700;line-height:.95;letter-spacing:-.045em;max-width:760px">{{ t.connTitle }}</h1>
+<p style="margin:0;font-size:19px;line-height:1.55;color:var(--text-muted);max-width:520px">{{ t.connSubD }}</p>
+</div>
+<div style="display:flex;height:4px"><span style="flex:1;background:var(--red-500)"></span><span style="flex:1;background:var(--surface-raised)"></span></div>
+</div>
+<div style="padding:40px 64px 48px;display:flex;flex-direction:column;background:var(--surface-1)">
+<div style="display:flex;justify-content:flex-end;gap:6px"><x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.Tag" selected="{{ isEs }}" on-click="{{ setEs }}" hint-size="40px,28px">ES</x-import><x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.Tag" selected="{{ isEn }}" on-click="{{ setEn }}" hint-size="40px,28px">EN</x-import></div>
+<div style="flex:1;display:flex;flex-direction:column;justify-content:center">
+<div style="display:flex;flex-direction:column;background:var(--surface-2);border:1px solid var(--border-hairline);border-radius:4px;padding:0 24px">
+<div style="display:flex;align-items:center;gap:14px;font-size:15px;padding:18px 0;border-bottom:1px solid var(--divider)"><span style="color:var(--green-500);display:inline-flex"><x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.Icon" name="circle-check" size="{{ 17 }}" hint-size="17px,17px"></x-import></span><span style="flex:1">{{ t.s1 }}</span><span class="bal-num" style="font-size:13px;color:var(--text-muted)">21:04:12</span></div>
+<div style="display:flex;align-items:center;gap:14px;font-size:15px;padding:18px 0;border-bottom:1px solid var(--divider)"><span style="color:var(--red-500);display:inline-flex;animation:bal-spin 1s linear infinite"><x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.Icon" name="loader-circle" size="{{ 17 }}" hint-size="17px,17px"></x-import></span><span style="flex:1">{{ t.s2 }}</span><span class="bal-num" style="font-size:13px;color:var(--text-muted)">—</span></div>
+<div style="display:flex;align-items:center;gap:14px;font-size:15px;padding:18px 0;color:var(--text-faint)"><span style="display:inline-flex;width:17px;height:17px;border:1.5px solid var(--border-strong);border-radius:50%"></span><span style="flex:1">{{ t.s3 }}</span></div>
+</div>
+<div style="margin-top:36px;display:flex;flex-direction:column;gap:14px">
+<x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.Button" variant="primary" size="lg" full-width="{{ true }}" loading="{{ true }}" hint-size="100%,48px">{{ t.cta }}</x-import>
+<p style="margin:0;font-size:13px;line-height:1.5;color:var(--text-muted);text-align:center">{{ t.noWindow }} <a href="#" style="color:var(--text-primary)">{{ t.reopen }}</a></p>
+</div>
+</div>
+</div></div></div>
+
+<div style="display:flex;flex-direction:column;gap:12px" data-screen-label="D04 Error">
+<span class="bal-eyebrow" style="color:var(--text-muted)">D04 · Error de conexión</span>
+<div style="width:1440px;height:900px;background:var(--bg-canvas);border:1px solid var(--border-subtle);border-radius:4px;display:grid;grid-template-columns:1fr 560px;overflow:hidden">
+<div style="padding:40px 56px 48px;display:flex;flex-direction:column;justify-content:space-between;border-right:1px solid var(--border-hairline)">
+<div style="font-family:var(--font-display);font-size:16px;font-weight:700;line-height:.92;letter-spacing:-.04em;text-transform:uppercase">Become<br>a Legend</div>
+<div style="display:flex;flex-direction:column;gap:28px">
+<span style="color:var(--text-muted);display:inline-flex"><x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.Icon" name="circle-alert" size="{{ 32 }}" hint-size="32px,32px"></x-import></span>
+<h1 style="margin:0;font-family:var(--font-display);font-size:76px;font-weight:700;line-height:.95;letter-spacing:-.045em;max-width:760px">{{ t.errTitle }}</h1>
+<p style="margin:0;font-size:19px;line-height:1.55;color:var(--text-muted);max-width:560px">{{ t.errSub }}</p>
+</div>
+<div style="display:flex;height:4px"><span style="flex:1;background:var(--red-500)"></span><span style="flex:1;background:var(--surface-raised)"></span></div>
+</div>
+<div style="padding:40px 64px 48px;display:flex;flex-direction:column;background:var(--surface-1)">
+<div style="display:flex;justify-content:flex-end;gap:6px"><x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.Tag" selected="{{ isEs }}" on-click="{{ setEs }}" hint-size="40px,28px">ES</x-import><x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.Tag" selected="{{ isEn }}" on-click="{{ setEn }}" hint-size="40px,28px">EN</x-import></div>
+<div style="flex:1;display:flex;flex-direction:column;justify-content:center">
+<div style="display:flex;align-items:center;justify-content:space-between;padding:14px 20px;background:var(--surface-2);border:1px solid var(--border-hairline);border-radius:4px"><span class="bal-eyebrow" style="color:var(--text-muted)">Riot · auth timeout</span><span class="bal-num" style="font-size:13px;color:var(--text-muted)">21:04:32</span></div>
+<div style="margin-top:36px;display:flex;flex-direction:column;gap:10px">
+<x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.Button" variant="primary" size="lg" full-width="{{ true }}" icon="gamepad-2" hint-size="100%,48px">{{ t.retry }}</x-import>
+<x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.Button" variant="ghost" size="lg" full-width="{{ true }}" icon-after="arrow-right" hint-size="100%,48px">{{ t.status }}</x-import>
+</div>
+</div>
+</div></div></div>
+
+<div style="display:flex;flex-direction:column;gap:12px" data-screen-label="D05 Cuenta nueva">
+<span class="bal-eyebrow" style="color:var(--text-muted)">D05 · Cuenta nueva, nombre visible</span>
+<div style="width:1440px;height:900px;background:var(--bg-canvas);border:1px solid var(--border-subtle);border-radius:4px;display:grid;grid-template-columns:1fr 560px;overflow:hidden">
+<div style="padding:40px 56px 48px;display:flex;flex-direction:column;justify-content:space-between;border-right:1px solid var(--border-hairline)">
+<div style="font-family:var(--font-display);font-size:16px;font-weight:700;line-height:.92;letter-spacing:-.04em;text-transform:uppercase">Become<br>a Legend</div>
+<div style="display:flex;flex-direction:column;gap:28px">
+<span class="bal-eyebrow" style="color:var(--text-muted)">{{ t.step2 }}</span>
+<h1 style="margin:0;font-family:var(--font-display);font-size:76px;font-weight:700;line-height:.95;letter-spacing:-.045em;max-width:720px">{{ t.nameTitle }}</h1>
+<p style="margin:0;font-size:19px;line-height:1.55;color:var(--text-muted);max-width:520px">{{ t.nameSub }}</p>
+</div>
+<div style="display:flex;height:4px"><span style="flex:1;background:var(--red-500)"></span><span style="flex:1;background:var(--red-500)"></span></div>
+</div>
+<div style="padding:40px 64px 48px;display:flex;flex-direction:column;background:var(--surface-1)">
+<div style="display:flex;justify-content:flex-end;gap:6px"><x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.Tag" selected="{{ isEs }}" on-click="{{ setEs }}" hint-size="40px,28px">ES</x-import><x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.Tag" selected="{{ isEn }}" on-click="{{ setEn }}" hint-size="40px,28px">EN</x-import></div>
+<div style="flex:1;display:flex;flex-direction:column;justify-content:center">
+<div style="display:flex;align-items:center;gap:14px;padding:16px 20px;background:var(--surface-2);border:1px solid var(--border-hairline);border-radius:4px">
+<x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.Avatar" name="Diego Ruiz" tier="oro" size="md" hint-size="40px,40px"></x-import>
+<div style="flex:1;min-width:0"><div class="bal-num" style="font-size:14px;font-weight:600">DiegoR#LAN</div><div style="margin-top:2px;font-size:13px;color:var(--text-muted)">{{ t.acct }}</div></div>
+<x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.Badge" tone="success" hint-size="auto,22px">{{ t.connected }}</x-import>
+</div>
+<div style="margin-top:32px"><x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.Input" label="{{ t.nameLabel }}" value="Diego" icon="user" suffix="5 / 20" hint="{{ t.nameHint }}" on-change="{{ noop }}" hint-size="100%,92px"></x-import></div>
+<div style="margin-top:36px"><x-import component-from-global-scope="BecomeALegendDesignSystem_cbebf2.Button" variant="primary" size="lg" full-width="{{ true }}" hint-size="100%,48px">{{ t.start }}</x-import></div>
+</div>
+</div></div></div>
+
+</div></div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;lang&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;default&quot;:&quot;es&quot;,&quot;options&quot;:[&quot;es&quot;,&quot;en&quot;],&quot;tsType&quot;:&quot;'es' | 'en'&quot;,&quot;section&quot;:&quot;Idioma&quot;},&quot;showEyebrow&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Principal&quot;},&quot;showLegal&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Principal&quot;}}">
+const COPY = {
+  es: {
+    eyebrow: 'Temporada 3 · en vivo', h1a: 'Tus amigos.', h1b: 'Tus reglas.', h1c: 'Tu leyenda.',
+    sub: 'Mandá un reto 1v1 en League of Legends o TFT. Tu amigo lo acepta, juegan, y el resultado se verifica solo.',
+    cta: 'Entrar con Riot', note: 'No creamos otra cuenta. Usamos la tuya de Riot.',
+    legal: 'Al continuar aceptás los términos y la política de privacidad.',
+    step1: 'Paso 1 de 2', step2: 'Paso 2 de 2',
+    permTitle: 'Qué leemos de tu cuenta de Riot', permSub: 'Solo lectura. Es lo mínimo para que un reto funcione.',
+    permSubD: 'Solo lectura. Es lo mínimo para que un reto funcione y el resultado se verifique solo.',
+    p1t: 'Tu Riot ID y región', p1d: 'Para que tus amigos te encuentren.',
+    p2t: 'Tu historial de partidas', p2d: 'Para verificar el resultado de cada reto al terminar la partida.',
+    p3t: 'Tu rango en LoL y TFT', p3d: 'Para ubicarte en la escalera y emparejarte con rivales parejos.',
+    permNote: 'No publicamos nada en tu nombre ni tocamos tu cuenta. Podés desconectarla cuando quieras.',
+    permCta: 'Continuar a Riot', notNow: 'Ahora no',
+    connecting: 'Conectando', connTitle: 'Verificando tu cuenta de Riot.',
+    connSub: 'Tarda unos segundos. Si Riot te pide iniciar sesión, hacelo en su página y volvés solo.',
+    connSubD: 'Tarda unos segundos. Si Riot te pide iniciar sesión, hacelo en la ventana que se abrió y volvés solo.',
+    s1: 'Permisos aceptados', s2: 'Leyendo tu Riot ID y rango', s3: 'Entrando', dontClose: 'No cierres la app.',
+    noWindow: '¿No se abrió la ventana de Riot?', reopen: 'Abrirla de nuevo',
+    errTitle: 'No pudimos conectar con Riot.',
+    errSub: 'Riot no respondió. Puede ser tu conexión o que sus servidores estén saturados. Tu cuenta no cambió.',
+    retry: 'Intentar de nuevo', status: 'Ver estado de Riot',
+    acct: 'Oro II · LoL · región LAN', connected: 'Conectado',
+    nameTitle: '¿Cómo te llamamos?', nameSub: 'Así te ven tus amigos en los retos y el ranking. Tu Riot ID queda igual.',
+    nameLabel: 'Nombre visible', nameHint: 'Podés cambiarlo después desde tu perfil.', start: 'Empezar',
+    dTitle: 'Entrá con tu cuenta de Riot.', dSub: 'No creamos otra cuenta. Usamos la tuya de Riot para leer tu ID, tu rango y tus partidas.',
+    trust1: 'El resultado se lee de la API del juego.', trust2: 'Solo lectura. No tocamos tu cuenta.'
+  },
+  en: {
+    eyebrow: 'Season 3 · live', h1a: 'Your friends.', h1b: 'Your rules.', h1c: 'Your legend.',
+    sub: 'Send a 1v1 challenge in League of Legends or TFT. Your friend accepts, you play, and the result verifies itself.',
+    cta: 'Sign in with Riot', note: 'No new account. We use your Riot account.',
+    legal: 'By continuing you accept the terms and the privacy policy.',
+    step1: 'Step 1 of 2', step2: 'Step 2 of 2',
+    permTitle: 'What we read from your Riot account', permSub: 'Read-only. The minimum a challenge needs to work.',
+    permSubD: 'Read-only. The minimum a challenge needs to work and verify its own result.',
+    p1t: 'Your Riot ID and region', p1d: 'So your friends can find you.',
+    p2t: 'Your match history', p2d: 'To verify the result of every challenge when the match ends.',
+    p3t: 'Your rank in LoL and TFT', p3d: 'To place you on the ladder and match you with even rivals.',
+    permNote: 'We never post as you or touch your account. Disconnect it whenever you want.',
+    permCta: 'Continue to Riot', notNow: 'Not now',
+    connecting: 'Connecting', connTitle: 'Verifying your Riot account.',
+    connSub: 'Takes a few seconds. If Riot asks you to sign in, do it on their page and you come right back.',
+    connSubD: 'Takes a few seconds. If Riot asks you to sign in, do it in the window that opened and you come right back.',
+    s1: 'Permissions accepted', s2: 'Reading your Riot ID and rank', s3: 'Signing in', dontClose: 'Don\u2019t close the app.',
+    noWindow: 'Riot window didn\u2019t open?', reopen: 'Open it again',
+    errTitle: 'We couldn\u2019t reach Riot.',
+    errSub: 'Riot didn\u2019t respond. It could be your connection or their servers are busy. Nothing changed on your account.',
+    retry: 'Try again', status: 'Check Riot status',
+    acct: 'Gold II · LoL · LAN region', connected: 'Connected',
+    nameTitle: 'What should we call you?', nameSub: 'This is how friends see you in challenges and rankings. Your Riot ID stays the same.',
+    nameLabel: 'Display name', nameHint: 'You can change it later from your profile.', start: 'Get started',
+    dTitle: 'Sign in with your Riot account.', dSub: 'No new account. We use your Riot account to read your ID, rank and matches.',
+    trust1: 'Results are read from the game\u2019s API.', trust2: 'Read-only. We never touch your account.'
+  }
+};
+class Component extends DCLogic {
+  state = { lang: null };
+  renderVals() {
+    const lang = this.state.lang ?? this.props.lang ?? 'es';
+    return {
+      lang, t: COPY[lang],
+      isEs: lang === 'es', isEn: lang === 'en',
+      setEs: () => this.setState({ lang: 'es' }),
+      setEn: () => this.setState({ lang: 'en' }),
+      setLang: (v) => this.setState({ lang: v }),
+      langTabs: [{ value: 'es', label: 'Español' }, { value: 'en', label: 'English' }],
+      showEyebrow: this.props.showEyebrow ?? true,
+      showLegal: this.props.showLegal ?? true,
+      noop: () => {}
+    };
+  }
+}
+</script>
+</body>
+</html>

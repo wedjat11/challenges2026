@@ -1,0 +1,25 @@
+:root{
+  /* Ten-tier ladder, lowest to highest. Literal metal / gem colors. */
+  --tier-madera:#8A6244;
+  --tier-hierro:#8C9099;
+  --tier-bronce:#B0773A;
+  --tier-plata:#C6CBD4;
+  --tier-oro:#E0B341;
+  --tier-esmeralda:#2FA97A;
+  --tier-platino:#9FD3D8;
+  --tier-retador:#E8452F;
+  --tier-maestro:#7C5CE0;
+  --tier-gran-maestro:#F2E6C8;
+
+  /* Matching low-alpha grounds for chips and rows */
+  --tier-madera-tint:rgba(138,98,68,.16);
+  --tier-hierro-tint:rgba(140,144,153,.16);
+  --tier-bronce-tint:rgba(176,119,58,.16);
+  --tier-plata-tint:rgba(198,203,212,.16);
+  --tier-oro-tint:rgba(224,179,65,.16);
+  --tier-esmeralda-tint:rgba(47,169,122,.16);
+  --tier-platino-tint:rgba(159,211,216,.16);
+  --tier-retador-tint:rgba(232,69,47,.16);
+  --tier-maestro-tint:rgba(124,92,224,.16);
+  --tier-gran-maestro-tint:rgba(242,230,200,.16);
+}
