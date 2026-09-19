@@ -123,3 +123,14 @@ Commit SHAs, in order:
 ## Next step
 
 Orchestrator: push `feat/login-page-i-helpers-panel`, open a PR against `feat/challenge-ui-s4b-iii-create-page`; then push `feat/login-page-ii-route-rewire`, open a chained PR against `feat/login-page-i-helpers-panel`. Take the browser screenshots at 375px and desktop (mobile-first `LoginPanel` layout, `md:` scale-up) before or alongside review — this writer did not open a browser. Gate on the verification table above; nothing here is outstanding or partial.
+
+## Native review (receipt-driven development)
+
+Lineage `review-85a2e5c1126bce74`, four lenses (risk, resilience, readability, reliability), candidate = the committed diff of `feat/login-page` against `feat/challenge-ui-s4b-iii-create-page`. Outcome: **approved**, acknowledged and burned on 2026-09-19. The risk lens found no open redirect, no reflected input and no auth-config regression. Every finding below is advisory and non-blocking; the review contract treats them as separate later work, never as a reason to re-review this candidate.
+
+## Follow-ups (not in this feature's PRs)
+
+- [ ] F1 `src/app/login/return-path.ts`: reject ASCII control characters (tab, CR, LF) so a value such as `/\t/host` cannot become protocol-relative after WHATWG parsing; drop the dead `raw.length === 0` check; add an `isSafeReturnPath(raw)` predicate (or a "hidden field value" helper returning `string | undefined`) so `page.tsx` stops using the `""` fallback sentinel, and test array-valued and unsafe `from` values.
+- [ ] F2 `src/app/login/page.tsx`: the Auth.js error redirect (`/login?error=<code>`) carries no `from`, so "Try again" after a failed round-trip returns to `/account` instead of the original page. Read Auth.js's own callback-URL parameter through `safeReturnPath` as a fallback for the hidden field, and cover the error-plus-return-path case.
+- [ ] F3 `src/app/login/page.tsx`: a `Configuration` error lands on a page whose first step is `await auth()` with the same broken configuration, which can 500 instead of rendering "Sign-in isn't configured." Guard only the session lookup (keep `redirect()` outside the guard) so the error state still renders.
+- [ ] F4 Readability: fix the `LoginPanel` doc comment (it cites a "Design reference" section that does not exist and an unexplained "(D8)" tag); update the stale `pages` comment in `src/auth.ts` (the sign-in controls are links now, only `signInWithDiscordAction` calls `signIn`); name or explain the `56px` header offset in the panel's `min-h`; share the duplicated heading/subtitle class strings between the main and error branches; update the `AuthStatus` doc comment and consider moving `withReturnPath` out of the `/login` route folder into a shared module.
