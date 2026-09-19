@@ -7,7 +7,7 @@ import { ICON_PATHS } from "@/components/icons/paths";
  *
  * Inline `<svg>`, no `unpkg.com` fetch and no runtime `innerHTML` — the
  * opposite of the design export's `<i data-lucide>` + CDN-script pattern.
- * Server component, no `"use client"` (D8): every glyph is static markup.
+ * Server component, no client-boundary directive (D8): every glyph is static markup.
  */
 
 export type IconName = keyof typeof ICON_PATHS;
