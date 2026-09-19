@@ -4,7 +4,7 @@ Change: `challenge-ui` · Store: hybrid (this file + Engram topic `sdd/challenge
 
 ## Status
 
-**2/8 slices complete.** Phase S0 (design foundation) and Phase S1 (UI primitives) are done. S0: 9/9 tasks (0.1–0.9), delivered as two chained PRs from the tracker `feat/challenge-ui`: `feat/challenge-ui-s0a-design-tokens` (tokens) and `feat/challenge-ui-s0b-fonts-shell` (fonts, shell, lint ignore). S1: 12/12 tasks (1.1–1.12), delivered as **four** chained PRs (not the two the tasks-agent forecast — see "Review budget measurement (S1)"): `feat/challenge-ui-s1a-icons-button`, `feat/challenge-ui-s1b-layout-primitives`, `feat/challenge-ui-s1c-form-inputs`, `feat/challenge-ui-s1d-remaining-primitives`.
+**3/8 slices complete.** Phase S0 (design foundation), Phase S1 (UI primitives), and Phase S2 (ports + adapters) are done. S0: 9/9 tasks (0.1–0.9), delivered as two chained PRs from the tracker `feat/challenge-ui`: `feat/challenge-ui-s0a-design-tokens` (tokens) and `feat/challenge-ui-s0b-fonts-shell` (fonts, shell, lint ignore). S1: 12/12 tasks (1.1–1.12), delivered as **four** chained PRs (not the two the tasks-agent forecast — see "Review budget measurement (S1)"): `feat/challenge-ui-s1a-icons-button`, `feat/challenge-ui-s1b-layout-primitives`, `feat/challenge-ui-s1c-form-inputs`, `feat/challenge-ui-s1d-remaining-primitives`. S2: 7/7 tasks (2.1–2.7), delivered on branch `feat/challenge-ui-s2-ports-adapters` (one PR, under budget — see "Review budget measurement (S2)").
 
 ## Completed: Phase S0 — Design foundation
 
@@ -175,10 +175,77 @@ Every class is a mapped `@theme inline` utility from `globals.css` (`bg-action-p
 
 None beyond the deviations above.
 
+## Completed: Phase S2 — Ports + adapters
+
+- [x] 2.1 RED: added 10 failing cases to `src/adapters/db/challenge-repository.test.ts` for `listPublic` against `createTestDb()` — public + in-window appears · unlisted excluded regardless of window · not-yet-started excluded · ended excluded · `startsAt === now` included · `endsAt === now` included · ordering by `endsAt` ascending · tie on `endsAt` broken by `id` ascending · `limit` respected · empty result is `[]`.
+- [x] 2.2 GREEN: added `listPublic(now: Date, limit: number): Promise<StoredChallenge[]>` to `src/domain/ports/challenge-repository.ts`; implemented in `src/adapters/db/challenge-repository.ts` with `and(eq(visibility,"public"), lte(startsAt, now), gte(endsAt, now))`, `.orderBy(asc(endsAt), asc(id))`, `.limit(limit)`, mapped through the existing `toStoredChallenge`.
+- [x] 2.3 RED: added 5 failing cases to `src/adapters/db/challenge-repository.test.ts` for `listProgressForChallenge` — two participants each get their own rows · `ruleIndex` order preserved within a participant · `completedAt` null → `completed: false` · participant with zero rows absent · unknown challenge id → `[]`.
+- [x] 2.4 GREEN: added `ParticipantProgress` type and `listProgressForChallenge(challengeId: string): Promise<ParticipantProgress[]>` to `src/domain/ports/challenge-repository.ts`; implemented in `src/adapters/db/challenge-repository.ts`, grouping rows by `riotAccountId` (one query, ordered `riot_account_id asc, rule_index asc`) into `ParticipantProgress[]`. **Refactor**: extracted `toRuleProgress(row)` out of `findProgress`'s inline mapping so both methods share the exact same `completed = completedAt !== null` logic instead of duplicating it, per the design's "reuse its row mapping rather than duplicating it" instruction.
+- [x] 2.5 RED: added 4 failing cases to `src/adapters/db/riot-account-repository.test.ts` for `findById` — hit returns the mapped account · miss returns `null` · existing platform/region corruption guards still throw on a corrupt row (both the platform guard and the platform/region-mismatch guard, matching the two existing guard tests for `listByUser`/`findByPuuid`).
+- [x] 2.6 GREEN: added `findById(id: string): Promise<RiotAccount | null>` to `src/domain/ports/riot-account-repository.ts`; implemented in `src/adapters/db/riot-account-repository.ts` as `where id = ? limit 1` through the existing `toRiotAccount` guards — byte-identical query shape to `findByPuuid`, just keyed on `id`.
+- [x] 2.7 Verify — see "Verification (S2, task 2.7)" below.
+
+**Fakes extended to keep typecheck green.** Widening `ChallengeRepository` and `RiotAccountRepository` breaks any object literal typed against those interfaces that doesn't implement every method. Two existing in-memory test fakes are typed that way:
+- `src/application/poll-player.test.ts`'s `fakeChallenges(...)` (and one inline `ChallengeRepository` literal at the "backs off when listActiveForAccount throws" test, which spreads `fakeChallenges([])` and therefore needed no separate edit) — added `listPublic` and `listProgressForChallenge`, each throwing `"not used by pollPlayer"`, matching the fake's existing convention for every method `pollPlayer` does not call.
+- `src/application/link-riot-account.test.ts`'s `fakeRiotAccounts()` — added `findById(id)` returning `rows.find((row) => row.id === id) ?? null`, matching the fake's existing `findByPuuid` pattern (this one actually needed a real implementation, not a throw, because `id`-based lookup over the same in-memory `rows` array is trivial and keeps the fake internally consistent with `link`'s generated ids).
+
+No fake implementation of these ports exists anywhere else in `src` (checked with `rg -l "ChallengeRepository|RiotAccountRepository" src` — only the two port files, the two adapter files, `poll-player.{ts,test.ts}`, `link-riot-account.{ts,test.ts}`, and the two route files `src/app/account/page.tsx` / `src/app/account/actions.ts`, which consume the real adapter, not a fake).
+
+## TDD Cycle Evidence (S2)
+
+Strict TDD active. Every method followed RED (test against `createTestDb()` referencing the not-yet-existing method, confirmed failing with `TypeError: repository.<method> is not a function`) → GREEN (port signature + adapter implementation, confirmed passing) → REFACTOR (`listProgressForChallenge` only — extracted `toRuleProgress`; the other two needed no refactor, code was already minimal and clean).
+
+| Task | Method | Test File | Layer | Safety Net | RED | GREEN | TRIANGULATE | REFACTOR |
+|---|---|---|---|---|---|---|---|---|
+| 2.1–2.2 | `listPublic` | `challenge-repository.test.ts` | Adapter (in-memory SQLite via `createTestDb()`) | ✅ 33/33 (pre-existing suite) | ✅ Written — `pnpm exec vitest run src/adapters/db/challenge-repository.test.ts` → 10 failed (`TypeError: repository.listPublic is not a function`), 18 passed | ✅ 28/28 passed | ✅ 10 cases (public+in-window, unlisted-excluded, not-started-excluded, ended-excluded, startsAt-boundary, endsAt-boundary, order-by-endsAt, tie-by-id, limit, empty) | ➖ None needed |
+| 2.3–2.4 | `listProgressForChallenge` | `challenge-repository.test.ts` | Adapter | ✅ 28/28 (post-2.2 baseline) | ✅ Written — 5 failed (`TypeError: repository.listProgressForChallenge is not a function`), 28 passed | ✅ 33/33 passed | ✅ 5 cases (two-participants-own-rows, ruleIndex-order, null-completedAt, zero-rows-omitted, unknown-id) | ✅ extracted `toRuleProgress`, re-ran `pnpm exec vitest run src/adapters/db/challenge-repository.test.ts` → still 33/33 |
+| 2.5–2.6 | `findById` | `riot-account-repository.test.ts` | Adapter | ✅ 15/15 (pre-existing suite) | ✅ Written — 4 failed (`TypeError: repository.findById is not a function` / `repo.findById is not a function`), 15 passed | ✅ 19/19 passed | ✅ 4 cases (hit, miss, corrupt-platform-guard, platform/region-mismatch-guard) | ➖ None needed |
+
+### Test Summary (S2)
+
+- **Total tests written**: 19 (`listPublic` 10, `listProgressForChallenge` 5, `findById` 4)
+- **Total tests passing**: 19/19 new, 348/348 full suite (baseline 329 + 19)
+- **Layers used**: Adapter/integration against in-memory SQLite (19), no new unit or component tests
+- **Approval tests** (refactoring): None — the `toRuleProgress` extraction is covered by re-running the same 33-test suite before and after, not a dedicated approval-test pair
+- **Pure functions created**: 1 (`toRuleProgress`)
+
+## Work Unit Evidence (S2)
+
+| Evidence | Value |
+|---|---|
+| Focused test command and exact result | `pnpm exec vitest run src/adapters/db/challenge-repository.test.ts src/adapters/db/riot-account-repository.test.ts` → `Test Files 2 passed (2)`, `Tests 52 passed (52)`; the two dependent application fakes independently confirmed with `pnpm exec vitest run src/application/poll-player.test.ts src/application/link-riot-account.test.ts` → `Test Files 2 passed (2)`, `Tests 42 passed (42)` |
+| Runtime harness command/scenario and exact result | N/A — additive port/adapter methods with no route or use case calling them yet (S3b's `getChallengeView`/`list-public-challenges` are the first callers). Proven by construction: `git diff --stat` for this slice touches only `src/domain/ports/`, `src/adapters/db/`, and two existing application test files (fakes, not production callers); `pnpm build` shows the same 6 routes as S1, none touching these methods |
+| Rollback boundary | Revert `src/domain/ports/challenge-repository.ts`, `src/adapters/db/challenge-repository.ts`, `src/domain/ports/riot-account-repository.ts`, `src/adapters/db/riot-account-repository.ts` to their pre-S2 state, and revert the fake extensions in `src/application/poll-player.test.ts` and `src/application/link-riot-account.test.ts`. Every existing caller of these two repositories (`link-riot-account.ts`, `poll-player.ts`, `src/app/account/{page,actions}.tsx`) uses only pre-existing methods, so this reverts cleanly with no orphaned imports. |
+
+## Verification (S2, task 2.7)
+
+| Command | Result |
+|---|---|
+| `pnpm test` | exit 0 — `Test Files 36 passed (36)`, `Tests 348 passed (348)` (baseline 329 + 19 new) |
+| `pnpm typecheck` | exit 0 — `next typegen`, `wrangler types`, `tsc --noEmit` all clean |
+| `pnpm lint` | exit 0 |
+| `pnpm build` | exit 0 — compiled successfully, same 6 routes as S0/S1 (`/`, `/_not-found`, `/account`, `/api/auth/[...nextauth]`, `/privacy`, `/terms`), all still `ƒ` dynamic — expected, since S2 adds no route |
+
+## Review budget measurement (S2)
+
+Measured with `git diff --stat feat/challenge-ui-s1d-remaining-primitives -- ':!openspec/**'` against the two commits landed on this branch: **340 authored lines** (334 insertions + 6 deletions across `src/adapters/db/{challenge-repository,riot-account-repository}.{ts,test.ts}`, `src/domain/ports/{challenge-repository,riot-account-repository}.ts`, and the two fake-extension lines in `src/application/{poll-player,link-riot-account}.test.ts`). Within the tasks-agent's own 200–350 estimate and under the 400-line budget — delivered as **one** PR, no split and no `size:exception` needed.
+
+Commits on `feat/challenge-ui-s2-ports-adapters` (targets `feat/challenge-ui-s1d-remaining-primitives` per `feature-branch-chain`, since S2 branches from wherever it lands in the chain rather than in parallel per the tasks-agent's dependency note — see "Deviations from design" below):
+- `9e9b0f1` — `feat(challenge-repository): add listPublic and listProgressForChallenge`
+- `a1e17aa` — `feat(riot-account-repository): add findById for account lookups by id`
+
+## Deviations from design (S2)
+
+1. **S2 was implemented after S1 instead of in parallel, on a branch chained onto S1d rather than an independent branch off the tracker.** The tasks-agent's own dependency graph states S2 "runs in parallel with S0/S1" and "has no dependency on the design foundation", and offers `feat/challenge-ui-s2-ports-adapters` as an independent branch (`Depends on: —`). The orchestrator sequenced this apply after S1 completed and started the branch from `feat/challenge-ui-s1d-remaining-primitives` (this repository's actual current branch at launch), not from the tracker `feat/challenge-ui`. This is a sequencing/branch-base deviation only — S2's file scope (`src/domain/ports/`, `src/adapters/db/`) never overlaps S1's file scope (`src/components/`, `src/app/fonts*`, `src/app/globals.css`, `src/app/layout.tsx`), so the diff itself is exactly as independent as the design intended; only the branch's parent commit differs from what a fully-parallel delivery would have used.
+
+## Issues found (S2)
+
+None.
+
 ## Remaining tasks (not in this apply)
 
-- [ ] Phase S2 (ports + adapters) — 7 tasks, independent of S0/S1
-- [ ] Phase S3a (write use cases) — 7 tasks, depends on S2
+- [x] Phase S2 (ports + adapters) — 7/7 tasks complete (see above)
+- [ ] Phase S3a (write use cases) — 7 tasks, depends on S2 (now unblocked)
 - [ ] Phase S3b (read use cases) — 7 tasks, depends on S3a
 - [ ] Phase S4a (rule builder + presets) — 4 tasks, depends on S1 (now unblocked), S3a
 - [ ] Phase S4b (`/challenges/new` route) — 4 tasks, depends on S4a, S3b
@@ -202,3 +269,10 @@ None beyond the deviations above.
 - Current work unit: Phase S1 — UI primitives (all 12 tasks)
 - Boundary: starts from S0's shipped shell (self-hosted fonts, token pipeline, header with placeholder glyphs); ends with all 11 ported primitives, the vendored icon set, and the S0 header deviation resolved — buildable and fully verified, no known issues beyond the disclosed deviations
 - Review budget: S1 delivered as S1a (395) + S1b (398) + S1c (269) + S1d (325), all under 400; no `size:exception` — see "Review budget measurement (S1)" for why the pre-planned two-way split didn't hold and how the four-way split was derived
+
+### S2
+
+- Mode: chained PR slice (`feature-branch-chain`) — one PR, branch `feat/challenge-ui-s2-ports-adapters`, targeting `feat/challenge-ui-s1d-remaining-primitives` (see "Deviations from design (S2)" for why this branches off S1d instead of the tracker)
+- Current work unit: Phase S2 — Ports + adapters (all 7 tasks)
+- Boundary: starts from S1's shipped primitive set; ends with `listPublic`, `listProgressForChallenge`, and `findById` landed on their respective ports and adapters, covered by 19 new adapter tests, with the two existing in-memory application fakes extended to keep typecheck green — buildable and fully verified, no known issues, no route or use case calls any of the three new methods yet
+- Review budget: 340 authored lines, under 400; no `size:exception` — see "Review budget measurement (S2)"
