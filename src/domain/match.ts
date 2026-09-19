@@ -14,6 +14,25 @@ export function isRole(value: string): value is Role {
 }
 
 /**
+ * Human labels for a role, used by `rule-text.ts` to render a rule's role
+ * criterion as a readable sentence fragment (for example "... in Jungle").
+ *
+ * `unknown` gets a full descriptive phrase, not a bare noun: the other five
+ * labels are single position names ("Jungle", "Top"), but a criterion that
+ * targets remakes/roleless modes reads badly as "in unknown" — "in an
+ * unrecognized role" is the one label here that keeps the sentence readable
+ * on its own, at the cost of not matching the other entries' shape.
+ */
+export const ROLE_LABELS: Record<Role, string> = {
+  top: "Top",
+  jungle: "Jungle",
+  middle: "Mid",
+  bottom: "Bottom",
+  support: "Support",
+  unknown: "an unrecognized role",
+};
+
+/**
  * The queues challenges distinguish between.
  *
  * Deliberately smaller than Riot's queue list: `other` absorbs rotating game
@@ -34,6 +53,20 @@ export type Queue = (typeof QUEUES)[number];
 export function isQueue(value: string): value is Queue {
   return (QUEUES as readonly string[]).includes(value);
 }
+
+/**
+ * Human word forms for a queue, used by `rule-text.ts` to render a rule's
+ * queue criterion mid-sentence (for example "... 10 ranked solo games ...").
+ * Lower-case except `ARAM`, which is an initialism, not a phrase.
+ */
+export const QUEUE_LABELS: Record<Queue, string> = {
+  "ranked-solo": "ranked solo",
+  "ranked-flex": "ranked flex",
+  "normal-draft": "normal draft",
+  "normal-blind": "normal blind",
+  aram: "ARAM",
+  other: "other",
+};
 
 /**
  * One finished League of Legends match, seen from one tracked player's side,
