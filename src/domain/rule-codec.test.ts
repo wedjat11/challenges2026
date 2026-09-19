@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { parseRules, serialiseRules } from "@/domain/rule-codec";
+import { parseRules, safeParseRules, serialiseRules } from "@/domain/rule-codec";
 import type { Rule } from "@/domain/rule";
 
 const winTenRankedJungle: Rule[] = [
@@ -62,6 +62,57 @@ describe("rejecting what the database should never hold", () => {
     // A challenge nobody can fail is not a challenge, and `evaluate` would
     // report it complete the moment it is created.
     expect(() => parseRules("[]")).toThrow();
+  });
+});
+
+describe("safeParseRules", () => {
+  it("returns the parsed rules on a valid payload", () => {
+    const rules: Rule[] = [{ target: 5, criteria: [{ kind: "won" }] }];
+
+    expect(safeParseRules(JSON.stringify(rules))).toEqual({ ok: true, rules });
+  });
+
+  it("reports not_json for a payload that is not valid JSON", () => {
+    expect(safeParseRules("not json")).toEqual({
+      ok: false,
+      reason: "not_json",
+      ruleIndex: null,
+      field: null,
+    });
+  });
+
+  it("reports invalid, with no rule index, for an empty rules array", () => {
+    expect(safeParseRules("[]")).toEqual({
+      ok: false,
+      reason: "invalid",
+      ruleIndex: null,
+      field: null,
+    });
+  });
+
+  it("names the offending rule's index and field for a bad target on rule index 1", () => {
+    const payload = JSON.stringify([
+      { target: 10, criteria: [] },
+      { target: -1, criteria: [] },
+    ]);
+
+    expect(safeParseRules(payload)).toEqual({
+      ok: false,
+      reason: "invalid",
+      ruleIndex: 1,
+      field: "target",
+    });
+  });
+
+  it("reports invalid for an unknown criterion kind", () => {
+    const payload = '[{"target":1,"criteria":[{"kind":"kda","value":3}]}]';
+
+    const result = safeParseRules(payload);
+
+    expect(result.ok).toBe(false);
+    if (result.ok) throw new Error("expected ok: false");
+    expect(result.reason).toBe("invalid");
+    expect(result.ruleIndex).toBe(0);
   });
 });
 

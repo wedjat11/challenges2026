@@ -40,3 +40,35 @@ export function serialiseRules(rules: Rule[]): string {
   // than as two rows that look different and behave the same.
   return JSON.stringify(rulesSchema.parse(rules));
 }
+
+/**
+ * The non-throwing counterpart to `parseRules`, for callers — application use
+ * cases — that must turn a validation failure into a typed result rather than
+ * a caught exception. `parseRules`/`serialiseRules` keep throwing and keep
+ * their existing callers; this is additive, not a replacement.
+ */
+export type ParsedRules =
+  | { ok: true; rules: Rule[] }
+  | { ok: false; reason: "not_json" | "invalid"; ruleIndex: number | null; field: string | null };
+
+export function safeParseRules(json: string): ParsedRules {
+  let candidate: unknown;
+  try {
+    candidate = JSON.parse(json);
+  } catch {
+    return { ok: false, reason: "not_json", ruleIndex: null, field: null };
+  }
+
+  const result = rulesSchema.safeParse(candidate);
+  if (result.success) return { ok: true, rules: result.data };
+
+  const firstIssue = result.error.issues[0];
+  const path = firstIssue?.path ?? [];
+  // A path starting with a numeric segment names the offending rule's index
+  // in the array; anything else (e.g. the top-level "at least one rule" issue
+  // on an empty array) has no single rule to blame.
+  const ruleIndex = typeof path[0] === "number" ? path[0] : null;
+  const field = ruleIndex !== null && typeof path[1] === "string" ? path[1] : null;
+
+  return { ok: false, reason: "invalid", ruleIndex, field };
+}
