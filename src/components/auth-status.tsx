@@ -1,32 +1,28 @@
 import Link from "next/link";
 
-import { auth, signIn, signOut } from "@/auth";
+import { withReturnPath } from "@/app/login/return-path";
+import { auth, signOut } from "@/auth";
 
 /**
- * Sign-in state for the landing page header. Both actions are server
- * actions, so signing in or out ships no client JavaScript of its own.
+ * Sign-in state for the landing page header. Signed out, this is a plain
+ * link to `/login` (styled as the pre-existing outline control) rather
+ * than the old inline Discord form — `/login` is the one place that calls
+ * `signIn()` now. Signing out still ships no client JavaScript of its own.
  *
  * A plain `img`, not `next/image`: the avatar comes from Discord's CDN, and
  * whitelisting that host in `next.config.ts` is out of scope for this task.
  */
-export async function AuthStatus() {
+export async function AuthStatus({ from }: { from?: string } = {}) {
   const session = await auth();
 
   if (!session?.user) {
     return (
-      <form
-        action={async () => {
-          "use server";
-          await signIn("discord");
-        }}
+      <Link
+        href={withReturnPath("/login", from)}
+        className="rounded-md border border-black/10 px-4 py-2 text-sm font-medium dark:border-white/15"
       >
-        <button
-          type="submit"
-          className="rounded-md border border-black/10 px-4 py-2 text-sm font-medium dark:border-white/15"
-        >
-          Sign in with Discord
-        </button>
-      </form>
+        Sign in with Discord
+      </Link>
     );
   }
 

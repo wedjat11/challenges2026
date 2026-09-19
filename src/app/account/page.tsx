@@ -24,7 +24,7 @@ export default async function AccountPage() {
           Sign in to link a Riot account.
         </p>
         <div className="mt-6">
-          <AuthStatus />
+          <AuthStatus from="/account" />
         </div>
       </main>
     );

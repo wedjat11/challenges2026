@@ -30,7 +30,7 @@ export default async function NewChallengePage() {
         <Card padding="lg" className="mt-8">
           <p className="text-body text-text-secondary">Sign in to create a challenge.</p>
           <div className="mt-4">
-            <AuthStatus />
+            <AuthStatus from="/challenges/new" />
           </div>
         </Card>
       </main>
