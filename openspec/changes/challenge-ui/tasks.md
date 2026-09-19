@@ -164,8 +164,8 @@ S2 ──► S3a ──► S3b ─────┴──► S5a ──► S5b ─
 **Depends on**: S1, S3a
 **Est. changed lines**: 180–260
 
-- [ ] 4a.1 RED: create `src/domain/rule-presets.test.ts` — each preset's `build(...)` output survives `parseRules` · edited args flow through
-- [ ] 4a.2 GREEN: create `src/domain/rule-presets.ts` with `RULE_PRESETS: { id, label, description, build(args): Rule }[]` for the four presets (Win the match; Win N games with champion X; Play N games; Win N ranked games as role R) (D12) — challenge-authoring: Preset Starting Points
+- [x] 4a.1 RED: create `src/domain/rule-presets.test.ts` — each preset's `build(...)` output survives `parseRules` · edited args flow through
+- [x] 4a.2 GREEN: create `src/domain/rule-presets.ts` with `RULE_PRESETS: { id, label, description, build(args): Rule }[]` for the four presets (Win the match; Win N games with champion X; Play N games; Win N ranked games as role R) (D12) — challenge-authoring: Preset Starting Points
 - [ ] 4a.3 Create `src/app/challenges/new/rule-builder.tsx` (`"use client"`) — 1–5 rules via `useState<Rule[]>`, each with a target and 0–4 criteria rendered as `Tag` chips, add/remove controls disabled at the caps (`Add rule` disabled at 5, `Remove` disabled at 1 remaining rule, `Add criterion` disabled at 4 per rule) — challenge-authoring: Rule Builder Structure and Caps
 - [ ] 4a.4 Verify: `pnpm test` (rule-presets suite GREEN from 4a.1); `pnpm typecheck && pnpm lint && pnpm build` — `rule-builder.tsx` is unreferenced at this point and ships without changing any rendered page, matching S1's independence property
 
