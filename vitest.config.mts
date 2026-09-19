@@ -10,9 +10,11 @@ export default defineConfig({
   },
   test: {
     // The domain layer is pure: no DOM, no network, no Cloudflare bindings.
-    // Adapter and route tests arrive later and can opt into their own environment.
+    // Component tests (S1+) render server components via react-dom/server's
+    // renderToStaticMarkup, which needs no DOM — so they stay on this same
+    // "node" environment rather than pulling in jsdom/happy-dom.
     environment: "node",
-    include: ["src/**/*.test.ts"],
+    include: ["src/**/*.test.ts", "src/**/*.test.tsx"],
     exclude: ["node_modules/**", ".next/**", ".open-next/**", ".wrangler/**"],
   },
 });
