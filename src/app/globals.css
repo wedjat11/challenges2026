@@ -1,26 +1,132 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+/* Vendored design tokens — custom properties only, so unlayered is safe (D6). */
+@import "../styles/tokens/colors.css";
+@import "../styles/tokens/typography.css";
+@import "../styles/tokens/spacing.css";
+@import "../styles/tokens/radius.css";
+@import "../styles/tokens/elevation.css";
+@import "../styles/tokens/motion.css";
+
+/* Owned. Binds the design's family tokens to the next/font variables (D4). */
+@import "../styles/tokens/app-fonts.css";
+/* Owned. --bal-* indirection for names that collide with a Tailwind
+   theme namespace, plus the --text-body collision fix (D2, D3). */
+@import "../styles/tokens/app-aliases.css";
+
+/* Vendored element resets — into Tailwind's base layer so utilities win (D6). */
+@import "../styles/tokens/base.css" layer(base);
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  /* --color-* : every semantic alias, so [data-theme="light"] parity is kept */
+  --color-bg-canvas: var(--bg-canvas);
+  --color-bg-base: var(--bg-base);
+  --color-surface-1: var(--surface-1);
+  --color-surface-2: var(--surface-2);
+  --color-surface-3: var(--surface-3);
+  --color-surface-raised: var(--surface-raised);
+  --color-surface-sunken: var(--surface-sunken);
+  --color-surface-inverse: var(--surface-inverse);
+
+  --color-text-primary: var(--text-primary);
+  --color-text-body: var(--bal-text-body-color); /* D3 */
+  --color-text-secondary: var(--text-secondary);
+  --color-text-muted: var(--text-muted);
+  --color-text-faint: var(--text-faint);
+  --color-text-inverse: var(--text-inverse);
+  --color-text-accent: var(--text-accent);
+
+  --color-border-hairline: var(--border-hairline);
+  --color-border-subtle: var(--border-subtle);
+  --color-border-strong: var(--border-strong);
+  --color-border-accent: var(--border-accent);
+  --color-divider: var(--divider);
+
+  --color-action-primary: var(--action-primary-bg);
+  --color-action-primary-hover: var(--action-primary-bg-hover);
+  --color-action-primary-active: var(--action-primary-bg-active);
+  --color-action-primary-fg: var(--action-primary-fg);
+  --color-action-secondary: var(--action-secondary-bg);
+  --color-action-secondary-hover: var(--action-secondary-bg-hover);
+  --color-action-secondary-fg: var(--action-secondary-fg);
+  --color-action-ghost-fg: var(--action-ghost-fg);
+
+  --color-state-win: var(--state-win);
+  --color-state-loss: var(--state-loss);
+  --color-state-live: var(--state-live);
+  --color-state-pending: var(--state-pending);
+
+  --color-red-500: var(--red-500);
+  --color-red-400: var(--red-400);
+  --color-red-600: var(--red-600);
+  --color-red-tint: var(--red-tint);
+  --color-red-tint-strong: var(--red-tint-strong);
+  --color-green-500: var(--green-500);
+  --color-green-tint: var(--green-tint);
+  --color-amber-500: var(--amber-500);
+  --color-amber-tint: var(--amber-tint);
+  --color-blue-500: var(--blue-500);
+  --color-blue-tint: var(--blue-tint);
+
+  /* --font-* */
+  --font-display: var(--bal-font-display);
+  --font-body: var(--bal-font-body);
+  --font-mono: var(--bal-font-mono);
+
+  /* --text-* (font sizes) */
+  --text-display-1: var(--bal-text-display-1);
+  --text-display-2: var(--bal-text-display-2);
+  --text-display-3: var(--bal-text-display-3);
+  --text-title-1: var(--bal-text-title-1);
+  --text-title-2: var(--bal-text-title-2);
+  --text-title-3: var(--bal-text-title-3);
+  --text-body-lg: var(--bal-text-body-lg);
+  --text-body: var(--bal-text-body-size); /* D3 */
+  --text-body-sm: var(--bal-text-body-sm);
+  --text-caption: var(--bal-text-caption);
+  --text-micro: var(--bal-text-micro);
+
+  /* --tracking-*, --leading-* */
+  --tracking-display: var(--bal-tracking-display);
+  --tracking-title: var(--bal-tracking-title);
+  --tracking-body: var(--bal-tracking-body);
+  --tracking-label: var(--bal-tracking-label);
+  --tracking-eyebrow: var(--bal-tracking-eyebrow);
+  --leading-display: var(--lh-display);
+  --leading-title: var(--lh-title);
+  --leading-body: var(--lh-body);
+  --leading-tight: var(--lh-tight);
+
+  /* --radius-*, --shadow-* */
+  --radius-card: var(--bal-radius-card);
+  --radius-control: var(--bal-radius-control);
+  --radius-pill: var(--bal-radius-pill);
+  --shadow-1: var(--bal-shadow-1);
+  --shadow-2: var(--bal-shadow-2);
+  --shadow-3: var(--bal-shadow-3);
+  --shadow-focus: var(--bal-shadow-focus);
+
+  /* --container-*, --ease-* */
+  --container-max: var(--bal-container-max);
+  --container-prose: var(--bal-container-prose);
+  --ease-standard: var(--bal-ease-standard);
+  --ease-out-bal: var(--bal-ease-out);
+
+  /* R7 compatibility aliases — DELETED IN S6 (D7) */
+  --color-background: var(--bg-canvas);
+  --color-foreground: var(--bal-text-body-color);
 }
 
-@media (prefers-color-scheme: dark) {
+/* S0→S6 shim. The product is dark-only (A8), but six pre-existing files still
+   carry `dark:` pairs resolved from prefers-color-scheme. Without this, a
+   visitor on a light OS gets `text-black/70` on a #08090A canvas. Deleted in
+   S6 once those pairs are on semantic tokens. */
+@custom-variant dark (&:where(:root, :root *));
+
+@layer base {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    /* Dark is the product (A8). This makes native controls, scrollbars and
+       form widgets render dark without a toggle or a class. */
+    color-scheme: dark;
   }
-}
-
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
 }

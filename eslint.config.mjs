@@ -17,6 +17,9 @@ const eslintConfig = defineConfig([
     "cloudflare-env.d.ts",
     ".open-next/**",
     ".wrangler/**",
+    // The Claude Design export: read-only input for the UI work, never
+    // imported at runtime, and not written to this repo's lint rules.
+    "design/**",
   ]),
 ]);
 
