@@ -22,6 +22,17 @@ export const { handlers, auth, signIn, signOut } = NextAuth(async () => ({
   // The host is Cloudflare Workers, not Vercel, so Auth.js cannot infer its
   // own canonical URL from the platform the way it does there.
   trustHost: true,
+  // `/login` replaces Auth.js's default unstyled sign-in and error pages
+  // (`/api/auth/signin`, `/api/auth/error`). Nothing else in this codebase
+  // links to either default path — every sign-in control calls `signIn()`
+  // as a Server Function, never a plain form POST to `/api/auth/signin` —
+  // so redirecting both here has no other side effect to account for.
+  // `pages.signIn`'s own OAuth failures land on `/login?error=<code>`
+  // (SignInPageErrorParam, e.g. OAuthCallbackError); `pages.error` covers
+  // the remaining codes (ErrorPageParam: Configuration, AccessDenied,
+  // Verification). `messageForAuthError` (src/app/login/auth-error.ts)
+  // maps every code from both families to the same error state.
+  pages: { signIn: "/login", error: "/login" },
   callbacks: {
     async jwt({ token, user }) {
       // `user` is only present on sign-in — it is the *transformed* output of
