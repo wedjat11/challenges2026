@@ -125,4 +125,26 @@ describe("RuleBuilder", () => {
 
     expect(html).not.toContain("aria-invalid");
   });
+
+  // S4b composition contract: create-form.tsx's review step needs a
+  // read-only copy of the current draft to preview via ruleToSentence.
+  // Interactive updates (add/remove) cannot be exercised under
+  // renderToStaticMarkup (no event system, no effects during SSR — the
+  // S7 Playwright spec is the interaction coverage, matching every other
+  // add/remove case in this file), but the *initial* notification is a real,
+  // render-time behavioural signal this layer can prove.
+  it("notifies onChange with the initial rules exactly once, on mount", () => {
+    const calls: Rule[][] = [];
+
+    renderToStaticMarkup(
+      <RuleBuilder initialRules={oneRule} onChange={(rules) => calls.push(rules)} />,
+    );
+
+    expect(calls).toHaveLength(1);
+    expect(calls[0]).toEqual(oneRule);
+  });
+
+  it("does not throw when onChange is omitted", () => {
+    expect(() => renderToStaticMarkup(<RuleBuilder initialRules={oneRule} />)).not.toThrow();
+  });
 });
