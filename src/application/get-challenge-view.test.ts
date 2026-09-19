@@ -314,6 +314,41 @@ describe("getChallengeView", () => {
     expect(result.view.ruleText).toEqual(rulesToSentences(rules));
   });
 
+  it("degrades to a placeholder when the Riot account row vanished after joining", async () => {
+    const view = getChallengeView({
+      challenges: fakeChallenges({
+        challenges: [aChallenge({ rules: [{ target: 3, criteria: [] }] })],
+        participants: ["account-ahri", "account-vanished"],
+        progress: [],
+      }),
+      riotAccounts: fakeRiotAccounts([
+        aRiotAccount({ id: "account-ahri", gameName: "Ahri", tagLine: "LAN1" }),
+        // "account-vanished" is intentionally absent — simulates an unlinked Riot account.
+      ]),
+      polling: fakePolling({}),
+      now: () => NOW,
+    });
+
+    const result = await view("challenge-1");
+
+    expect(result.kind).toBe("found");
+    if (result.kind !== "found") return;
+    const vanished = result.view.participants.find(
+      (participant) => participant.riotAccountId === "account-vanished",
+    );
+    expect(vanished).toEqual({
+      riotAccountId: "account-vanished",
+      displayName: "Unknown account",
+      platformLabel: "Unknown",
+      rules: [{ current: 0, target: 3, completed: false }],
+      lastCheckedAt: null,
+    });
+    expect(result.view.participants.map((participant) => participant.displayName)).toEqual([
+      "Ahri#LAN1",
+      "Unknown account",
+    ]);
+  });
+
   it("sorts participants by lowercased displayName ascending", async () => {
     const view = getChallengeView({
       challenges: fakeChallenges({
