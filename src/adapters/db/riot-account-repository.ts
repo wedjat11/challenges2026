@@ -152,6 +152,16 @@ export function createRiotAccountRepository(db: ChallengeDb): RiotAccountReposit
       return row ? toRiotAccount(row) : null;
     },
 
+    async findById(id: string): Promise<RiotAccount | null> {
+      const [row] = await db
+        .select()
+        .from(schema.riotAccounts)
+        .where(eq(schema.riotAccounts.id, id))
+        .limit(1);
+
+      return row ? toRiotAccount(row) : null;
+    },
+
     async unlink(id: string, userId: string): Promise<boolean> {
       // Checked first rather than read from the delete's own result: D1 and
       // libsql report affected-row counts on incompatible shapes, and

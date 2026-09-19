@@ -43,6 +43,9 @@ function fakeRiotAccounts(): RiotAccountRepository & { seed: RiotAccount[] } {
     async findByPuuid(puuid: string) {
       return rows.find((row) => row.puuid === puuid) ?? null;
     },
+    async findById(id: string) {
+      return rows.find((row) => row.id === id) ?? null;
+    },
     async unlink(id: string, userId: string) {
       const index = rows.findIndex((row) => row.id === id && row.userId === userId);
       if (index === -1) return false;

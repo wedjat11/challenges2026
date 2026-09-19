@@ -234,6 +234,55 @@ describe("unlink", () => {
   });
 });
 
+describe("findById", () => {
+  it("returns the mapped account for a hit", async () => {
+    const linked = await repository.link(anAccount());
+    if (linked.kind !== "linked") throw new Error("expected linked");
+
+    const found = await repository.findById(linked.account.id);
+
+    expect(found).toEqual(linked.account);
+  });
+
+  it("returns null for a miss", async () => {
+    expect(await repository.findById("nope")).toBeNull();
+  });
+
+  it("throws on a corrupt row's platform, same as the other read paths", async () => {
+    const db = await createTestDb();
+    await db.insert(schema.users).values({ id: "user-1", discordId: "d1", displayName: "Thoth" });
+    await db.insert(schema.riotAccounts).values({
+      id: "account-1",
+      userId: "user-1",
+      puuid: "puuid-1",
+      gameName: "ThothMon",
+      tagLine: "LAN1",
+      platform: "mars1",
+      region: "americas",
+    });
+    const repo = createRiotAccountRepository(db);
+
+    await expect(repo.findById("account-1")).rejects.toThrow(/mars1/);
+  });
+
+  it("throws when the stored region disagrees with the platform, same as the other read paths", async () => {
+    const db = await createTestDb();
+    await db.insert(schema.users).values({ id: "user-1", discordId: "d1", displayName: "Thoth" });
+    await db.insert(schema.riotAccounts).values({
+      id: "account-1",
+      userId: "user-1",
+      puuid: "puuid-1",
+      gameName: "ThothMon",
+      tagLine: "LAN1",
+      platform: "la1",
+      region: "europe",
+    });
+    const repo = createRiotAccountRepository(db);
+
+    await expect(repo.findById("account-1")).rejects.toThrow(/europe/);
+  });
+});
+
 describe("reading a corrupted platform or region", () => {
   it("throws a descriptive error rather than silently returning bad data", async () => {
     const db = await createTestDb();

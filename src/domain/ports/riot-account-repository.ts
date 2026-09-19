@@ -62,6 +62,9 @@ export type RiotAccountRepository = {
 
   findByPuuid(puuid: string): Promise<RiotAccount | null>;
 
+  /** Resolves a stored participant id to its identity and puuid. Null when unknown. */
+  findById(id: string): Promise<RiotAccount | null>;
+
   /** True if a row owned by `userId` was deleted. Never deletes another user's row. */
   unlink(id: string, userId: string): Promise<boolean>;
 };

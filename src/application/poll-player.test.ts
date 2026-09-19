@@ -75,6 +75,12 @@ function fakeChallenges(active: StoredChallenge[]): ChallengeRepository & {
     async listActiveForAccount() {
       return active;
     },
+    async listPublic() {
+      throw new Error("not used by pollPlayer");
+    },
+    async listProgressForChallenge() {
+      throw new Error("not used by pollPlayer");
+    },
   };
 }
 
