@@ -40,6 +40,17 @@ import { ruleToSentence } from "@/domain/rule-text";
  * plain `<button>` elements styled with the same theme utility vocabulary
  * (no arbitrary values, no inline styles) rather than reopening D8 for one
  * client subtree.
+ *
+ * S4b addition: the optional `onChange` prop lifts a read-only copy of the
+ * draft to a parent that cannot otherwise see it (the hidden `rulesJson`
+ * field is the only other channel, and it is not readable as React state).
+ * It fires once synchronously on mount with `initialRules` (a `useState`
+ * lazy initializer runs during the first render, including under
+ * `react-dom/server`'s `renderToStaticMarkup`, so this call is provable by
+ * a static-markup test) and again after every add/remove/edit handler with
+ * the freshly computed rules — never via a `useEffect`, which never runs
+ * during SSR and would make the initial notification untestable at this
+ * layer.
  */
 
 const MAX_RULES = 5;
@@ -73,6 +84,8 @@ export type RuleBuilderProps = {
   initialRules: Rule[];
   /** Marks one rule's target `Input` as invalid, per D14's server error naming. */
   invalidRule?: InvalidRule | null;
+  /** Lifts a read-only copy of the draft to the caller — see the doc comment above. */
+  onChange?: (rules: Rule[]) => void;
 };
 
 function criterionLabel(criterion: Criterion): string {
@@ -101,29 +114,46 @@ function buildCriterion(kind: Criterion["kind"], champion: string, role: Role, q
   }
 }
 
-export function RuleBuilder({ initialRules, invalidRule = null }: RuleBuilderProps) {
-  const [rules, setRules] = useState<Rule[]>(initialRules);
+export function RuleBuilder({ initialRules, invalidRule = null, onChange }: RuleBuilderProps) {
+  const [rules, setRules] = useState<Rule[]>(() => {
+    onChange?.(initialRules);
+    return initialRules;
+  });
+
+  /**
+   * Applies `updater` to the current draft, commits the result, and notifies
+   * `onChange` with it. Reads `rules` from the closure rather than React's
+   * functional-updater form: every caller is a single synchronous DOM event
+   * handler (never a rapid-fire batch), and `setRules`'s own updater function
+   * must stay pure — calling `onChange` (which may re-render a *different*
+   * component) from inside it would violate that.
+   */
+  function commit(updater: (current: Rule[]) => Rule[]) {
+    const next = updater(rules);
+    setRules(next);
+    onChange?.(next);
+  }
 
   function addRule() {
-    setRules((current) =>
+    commit((current) =>
       current.length >= MAX_RULES ? current : [...current, { target: 1, criteria: [] }],
     );
   }
 
   function removeRule(ruleIndex: number) {
-    setRules((current) =>
+    commit((current) =>
       current.length <= MIN_RULES ? current : current.filter((_, index) => index !== ruleIndex),
     );
   }
 
   function updateTarget(ruleIndex: number, target: number) {
-    setRules((current) =>
+    commit((current) =>
       current.map((rule, index) => (index === ruleIndex ? { ...rule, target } : rule)),
     );
   }
 
   function addCriterion(ruleIndex: number, criterion: Criterion) {
-    setRules((current) =>
+    commit((current) =>
       current.map((rule, index) => {
         if (index !== ruleIndex) return rule;
         if (rule.criteria.length >= MAX_CRITERIA) return rule;
@@ -137,7 +167,7 @@ export function RuleBuilder({ initialRules, invalidRule = null }: RuleBuilderPro
   }
 
   function removeCriterion(ruleIndex: number, criterionIndex: number) {
-    setRules((current) =>
+    commit((current) =>
       current.map((rule, index) =>
         index === ruleIndex
           ? { ...rule, criteria: rule.criteria.filter((_, ci) => ci !== criterionIndex) }
