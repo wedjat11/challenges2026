@@ -1,0 +1,65 @@
+/**
+ * Owned. One --bal-* declaration per vendored (or app-fonts.css) token name
+ * that collides with a Tailwind 4 theme namespace: --text-*, --font-*,
+ * --radius-*, --shadow-*, --tracking-*, --ease-*, --container-* (D2).
+ *
+ * `@theme inline` in globals.css maps every colliding Tailwind theme
+ * variable through one of these names instead of `--x: var(--x)`, which
+ * would be a self-referential custom property and therefore guaranteed
+ * cyclic and invalid, regardless of emission order or `inline` semantics.
+ */
+:root {
+  --bal-text-body-color: var(--ink-100);
+  /* The only hardcoded token in this pipeline. typography.css declares
+     --text-body: 16px, but colors.css re-declares the same name as a colour
+     under [data-theme="light"], so a var() reference would resolve to a
+     colour inside a light subtree. See design decision D3. */
+  --bal-text-body-size: 16px;
+
+  /* --font-* (from app-fonts.css, imported before this file) */
+  --bal-font-display: var(--font-display);
+  --bal-font-body: var(--font-body);
+  --bal-font-mono: var(--font-mono);
+
+  /* --text-* font sizes (from typography.css) */
+  --bal-text-display-1: var(--text-display-1);
+  --bal-text-display-2: var(--text-display-2);
+  --bal-text-display-3: var(--text-display-3);
+  --bal-text-title-1: var(--text-title-1);
+  --bal-text-title-2: var(--text-title-2);
+  --bal-text-title-3: var(--text-title-3);
+  --bal-text-body-lg: var(--text-body-lg);
+  --bal-text-body-sm: var(--text-body-sm);
+  --bal-text-caption: var(--text-caption);
+  --bal-text-micro: var(--text-micro);
+
+  /* --tracking-* (from typography.css) */
+  --bal-tracking-display: var(--tracking-display);
+  --bal-tracking-title: var(--tracking-title);
+  --bal-tracking-body: var(--tracking-body);
+  --bal-tracking-label: var(--tracking-label);
+  --bal-tracking-eyebrow: var(--tracking-eyebrow);
+
+  /* --radius-* (from radius.css) */
+  --bal-radius-card: var(--radius-card);
+  --bal-radius-control: var(--radius-control);
+  --bal-radius-pill: var(--radius-pill);
+
+  /* --shadow-* (from elevation.css) */
+  --bal-shadow-1: var(--shadow-1);
+  --bal-shadow-2: var(--shadow-2);
+  --bal-shadow-3: var(--shadow-3);
+  --bal-shadow-focus: var(--shadow-focus);
+
+  /* --container-* (from spacing.css; D5 — --space-* itself is never mapped) */
+  --bal-container-max: var(--container-max);
+  --bal-container-prose: var(--container-prose);
+
+  /* --ease-* (from motion.css) */
+  --bal-ease-standard: var(--ease-standard);
+  --bal-ease-out: var(--ease-out);
+}
+
+[data-theme="light"] {
+  --bal-text-body-color: var(--ink-900);
+}

@@ -1,0 +1,10 @@
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--bg-canvas);color:var(--text-body);font-family:var(--font-body);font-size:var(--text-body);line-height:var(--lh-body);letter-spacing:var(--tracking-body);-webkit-font-smoothing:antialiased}
+h1,h2,h3,h4{font-family:var(--font-display);color:var(--text-primary);letter-spacing:var(--tracking-title);line-height:var(--lh-title);margin:0;font-weight:var(--weight-semibold)}
+p{margin:0}
+a{color:var(--text-accent);text-decoration:none;transition:var(--transition-opacity)}
+a:hover{opacity:.72}
+::selection{background:var(--red-tint-strong);color:var(--text-primary)}
+:focus-visible{outline:none;box-shadow:var(--shadow-focus)}
+.bal-eyebrow{font-family:var(--font-mono);font-size:var(--text-micro);text-transform:uppercase;letter-spacing:var(--tracking-eyebrow);color:var(--text-muted)}
+.bal-num{font-family:var(--font-mono);font-variant-numeric:tabular-nums}
