@@ -1,0 +1,11 @@
+:root{
+  /* Sharp. Nothing soft — the brand geometry is split blocks. */
+  --radius-0:0px;
+  --radius-1:2px;
+  --radius-2:3px;
+  --radius-3:4px;
+  --radius-4:6px;
+  --radius-pill:999px;
+  --radius-card:var(--radius-3);
+  --radius-control:var(--radius-2);
+}

@@ -1,0 +1,20 @@
+/**
+ * Owned. Binds the vendored token family names to the next/font CSS
+ * variables declared in src/app/fonts.ts (D4).
+ *
+ * Declared as real, plain custom properties — not through the --bal-*
+ * indirection in app-aliases.css — because the vendored base.css (imported
+ * after this file, D1/D6) reads `var(--font-display)`, `var(--font-body)`
+ * and `var(--font-mono)` directly and is never edited. app-aliases.css then
+ * re-exports these same three names under --bal-font-* so `@theme inline`
+ * in globals.css can map Tailwind's own --font-* namespace without a
+ * self-referential custom property (D2).
+ */
+:root {
+  --font-display: var(--font-space-grotesk), "Helvetica Neue", Arial,
+    sans-serif;
+  --font-body: var(--font-instrument-sans), "Helvetica Neue", Arial,
+    sans-serif;
+  --font-mono: var(--font-jetbrains-mono), ui-monospace, SFMono-Regular,
+    Menlo, monospace;
+}
