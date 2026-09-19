@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { AuthStatus } from "@/components/auth-status";
+import { Icon, type IconName } from "@/components/icons/icon";
 
 /**
  * Present on every route (design-system: Header Navigation). Exactly three
@@ -11,18 +12,18 @@ import { AuthStatus } from "@/components/auth-status";
  * plain markup, so it inherits the client boundary of whoever it renders
  * (`AuthStatus` signs in/out with zero client JS of its own).
  *
- * Below `sm:` the three nav links collapse to icon-only buttons so the
- * header fits the 390px mobile-first contract without wrapping; labels
- * reappear from `sm:` up. The glyphs below are small inline placeholders —
- * S1 (`src/components/icons/`) introduces the vendored, licensed Lucide
- * `Icon`/`IconButton` primitives this header is designed to adopt; wiring
- * them in is out of S0's scope (S0 has no dependency on S1's components).
+ * Below `sm:` the three nav links collapse to icon-only 36px tap targets so
+ * the header fits the 390px mobile-first contract without wrapping; labels
+ * reappear from `sm:` up. S1 resolves the S0 deviation: the glyphs are now
+ * the vendored, licensed `Icon` primitive (`src/components/icons/`), not
+ * inline placeholder SVGs — the wordmark also gains the `swords` glyph the
+ * design's icon table names for the header lockup (design.md §3).
  */
 
-const NAV_ITEMS = [
-  { href: "/challenges", label: "Challenges", glyph: <GridGlyph /> },
-  { href: "/challenges/new", label: "Create", glyph: <PlusGlyph /> },
-  { href: "/account", label: "Account", glyph: <UserGlyph /> },
+const NAV_ITEMS: readonly { href: string; label: string; icon: IconName }[] = [
+  { href: "/challenges", label: "Challenges", icon: "layout-grid" },
+  { href: "/challenges/new", label: "Create", icon: "plus" },
+  { href: "/account", label: "Account", icon: "user" },
 ] as const;
 
 export function SiteHeader() {
@@ -31,8 +32,9 @@ export function SiteHeader() {
       <div className="mx-auto flex h-14 w-full max-w-container-max items-center justify-between gap-2 px-5 lg:px-10">
         <Link
           href="/"
-          className="shrink-0 font-display text-title-3 font-semibold tracking-title text-text-primary"
+          className="flex shrink-0 items-center gap-2 font-display text-title-3 font-semibold tracking-title text-text-primary"
         >
+          <Icon name="swords" size={20} />
           <span className="sm:hidden">BAL</span>
           <span className="hidden sm:inline">BECOME A LEGEND</span>
         </Link>
@@ -48,8 +50,8 @@ export function SiteHeader() {
               aria-label={item.label}
               className="flex h-9 w-9 items-center justify-center rounded-control text-text-muted transition-colors hover:text-text-primary sm:h-auto sm:w-auto sm:px-2 sm:py-1 sm:text-body-sm sm:font-medium"
             >
-              <span className="sm:hidden" aria-hidden="true">
-                {item.glyph}
+              <span className="sm:hidden">
+                <Icon name={item.icon} />
               </span>
               <span className="hidden sm:inline">{item.label}</span>
             </Link>
@@ -61,60 +63,5 @@ export function SiteHeader() {
         </div>
       </div>
     </header>
-  );
-}
-
-function GridGlyph() {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      width={18}
-      height={18}
-      fill="none"
-      stroke="currentColor"
-      strokeWidth={1.75}
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <rect x="3" y="3" width="7" height="7" rx="1" />
-      <rect x="14" y="3" width="7" height="7" rx="1" />
-      <rect x="3" y="14" width="7" height="7" rx="1" />
-      <rect x="14" y="14" width="7" height="7" rx="1" />
-    </svg>
-  );
-}
-
-function PlusGlyph() {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      width={18}
-      height={18}
-      fill="none"
-      stroke="currentColor"
-      strokeWidth={1.75}
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M12 5v14M5 12h14" />
-    </svg>
-  );
-}
-
-function UserGlyph() {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      width={18}
-      height={18}
-      fill="none"
-      stroke="currentColor"
-      strokeWidth={1.75}
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <circle cx="12" cy="8" r="4" />
-      <path d="M4 20c0-4.4 3.6-7 8-7s8 2.6 8 7" />
-    </svg>
   );
 }
