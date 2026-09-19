@@ -4,7 +4,7 @@ Change: `challenge-ui` · Store: hybrid (this file + Engram topic `sdd/challenge
 
 ## Status
 
-**3/8 slices complete.** Phase S0 (design foundation), Phase S1 (UI primitives), and Phase S2 (ports + adapters) are done. S0: 9/9 tasks (0.1–0.9), delivered as two chained PRs from the tracker `feat/challenge-ui`: `feat/challenge-ui-s0a-design-tokens` (tokens) and `feat/challenge-ui-s0b-fonts-shell` (fonts, shell, lint ignore). S1: 12/12 tasks (1.1–1.12), delivered as **four** chained PRs (not the two the tasks-agent forecast — see "Review budget measurement (S1)"): `feat/challenge-ui-s1a-icons-button`, `feat/challenge-ui-s1b-layout-primitives`, `feat/challenge-ui-s1c-form-inputs`, `feat/challenge-ui-s1d-remaining-primitives`. S2: 7/7 tasks (2.1–2.7), delivered on branch `feat/challenge-ui-s2-ports-adapters` (one PR, under budget — see "Review budget measurement (S2)").
+**4/8 slices complete.** Phase S0 (design foundation), Phase S1 (UI primitives), Phase S2 (ports + adapters), and Phase S3a (write use cases) are done. S0: 9/9 tasks (0.1–0.9), delivered as two chained PRs from the tracker `feat/challenge-ui`: `feat/challenge-ui-s0a-design-tokens` (tokens) and `feat/challenge-ui-s0b-fonts-shell` (fonts, shell, lint ignore). S1: 12/12 tasks (1.1–1.12), delivered as **four** chained PRs (not the two the tasks-agent forecast — see "Review budget measurement (S1)"): `feat/challenge-ui-s1a-icons-button`, `feat/challenge-ui-s1b-layout-primitives`, `feat/challenge-ui-s1c-form-inputs`, `feat/challenge-ui-s1d-remaining-primitives`. S2: 7/7 tasks (2.1–2.7), delivered on branch `feat/challenge-ui-s2-ports-adapters` (one PR, under budget — see "Review budget measurement (S2)"). S3a: 7/7 tasks (3a.1–3a.7), delivered as **three** chained PRs (not the two the tasks-agent's own example suggested — see "Review budget measurement (S3a)"): `feat/challenge-ui-s3a-i-rule-codec`, `feat/challenge-ui-s3a-ii-create-challenge`, `feat/challenge-ui-s3a-iii-join-challenge`.
 
 ## Completed: Phase S0 — Design foundation
 
@@ -242,12 +242,72 @@ Commits on `feat/challenge-ui-s2-ports-adapters` (targets `feat/challenge-ui-s1d
 
 None.
 
+## Completed: Phase S3a — Write use cases
+
+- [x] 3a.1 RED: added 5 failing cases to `src/domain/rule-codec.test.ts` for `safeParseRules` — valid · non-JSON → `not_json` · empty array → `invalid` · bad target on rule index 1 → `{ ruleIndex: 1, field: "target" }` · unknown criterion kind.
+- [x] 3a.2 GREEN: added `ParsedRules` type and `safeParseRules(json: string): ParsedRules` to `src/domain/rule-codec.ts`, wrapping `JSON.parse` + `rulesSchema.safeParse` and translating the first zod issue's `path` into `{ ruleIndex, field }` — a numeric first path segment names the rule index, a string second segment names the field; anything else (e.g. the top-level "at least one rule" issue on an empty array) has no single rule to blame and yields `{ ruleIndex: null, field: null }`. `parseRules`/`serialiseRules` are unchanged and keep their existing callers; `src/application` still never imports zod.
+- [x] 3a.3 RED: created `src/application/create-challenge.test.ts` with hand-written in-memory port fakes (no mocking library, no casts) — 14 cases: happy path stores exactly the submitted title/window/visibility/rules · creation with `joinAsRiotAccountId: null` produces zero participants · whitespace-only title · `endsAt === startsAt` · `endsAt < startsAt` · unparseable date · bad visibility · `safeParseRules` failure names the second rule · zero rules rejected · 6 rules rejected (`too_many_rules`) · 5 criteria on one rule rejected (`too_many_criteria`) · self-join stores a participant · self-join with a foreign-owned account refused, nothing created · self-join with an unknown account id refused, nothing created.
+- [x] 3a.4 GREEN: created `src/application/create-challenge.ts` — factory `createChallenge(deps: { challenges, riotAccounts, newId })`, `CreateChallengeInput`/`CreateChallengeResult` typed union, validation order exactly as design §7: title trim → window parse (`NaN` → `unparseable`) → window order (`endsAt > startsAt`) → visibility ∈ `{public, unlisted}` → `safeParseRules` → 5-rule/4-criteria caps (re-checked server-side since a Server Function is reachable by direct POST) → self-join ownership via `riotAccounts.findById` (null or foreign `userId` → `riot_account_not_owned`, nothing created) → `newId()` → `challenges.create` → optional `challenges.join` → `{ kind: "created", id }`. Create-then-join documented inline as non-transactional, matching design.
+- [x] 3a.5 RED: created `src/application/join-challenge.test.ts` — 8 cases: joins, recording exactly one participant row · second join reports `already_joined` and adds no row · unknown challenge → `challenge_not_found` · ended challenge refused (`challenge_ended`) · upcoming challenge allowed · live challenge allowed · foreign-owned account refused with no write · unknown account id refused with no write.
+- [x] 3a.6 GREEN: created `src/application/join-challenge.ts` — factory `joinChallenge(deps: { challenges, riotAccounts, now })`, `JoinChallengeInput`/`JoinChallengeResult` typed union, order exactly as design §7: `challenges.findById` → `challenge_not_found`; `now() > endsAt` → `challenge_ended` (upcoming and live both allowed); `riotAccounts.findById` ownership check → `riot_account_not_owned`; `listParticipants` contains the id → `already_joined`; else `challenges.join`. The pre-check exists only to *report* `already_joined` accurately — correctness against a race relies on the adapter's `onConflictDoNothing` (confirmed present in `src/adapters/db/challenge-repository.ts`'s `join`), so a race reports `joined` twice and still stores exactly one row.
+- [x] 3a.7 Verify — see "Verification (S3a, task 3a.7)" below.
+
+## TDD Cycle Evidence (S3a)
+
+Strict TDD active. Every pair followed RED (test importing/calling the not-yet-existing function, confirmed failing) → GREEN (implementation, confirmed passing) → REFACTOR (no refactor needed — both use cases came out clean on the first pass; no duplication, no magic numbers left un-named).
+
+| Task | Function | Test File | Layer | Safety Net | RED | GREEN | TRIANGULATE | REFACTOR |
+|---|---|---|---|---|---|---|---|---|
+| 3a.1–3a.2 | `safeParseRules` | `rule-codec.test.ts` | Unit (pure) | ✅ 9/9 (pre-existing suite) | ✅ Written — `pnpm exec vitest run src/domain/rule-codec.test.ts` → 5 failed (`TypeError: safeParseRules is not a function`), 9 passed | ✅ 14/14 passed | ✅ 5 cases (valid, not_json, empty-array-invalid, named-rule-index-1, unknown-criterion-kind) | ➖ None needed |
+| 3a.3–3a.4 | `createChallenge` | `create-challenge.test.ts` | Unit (in-memory port fakes) | N/A (new file) | ✅ Written — `pnpm exec vitest run src/application/create-challenge.test.ts` → module-resolution failure (`Cannot find package '@/application/create-challenge'`), 0 tests ran | ✅ 14/14 passed | ✅ 14 cases (see 3a.3 above) | ➖ None needed |
+| 3a.5–3a.6 | `joinChallenge` | `join-challenge.test.ts` | Unit (in-memory port fakes) | N/A (new file) | ✅ Written — `pnpm exec vitest run src/application/join-challenge.test.ts` → module-resolution failure (`Cannot find package '@/application/join-challenge'`), 0 tests ran | ✅ 8/8 passed | ✅ 8 cases (see 3a.5 above) | ➖ None needed |
+
+### Test Summary (S3a)
+
+- **Total tests written**: 27 (`safeParseRules` 5, `createChallenge` 14, `joinChallenge` 8)
+- **Total tests passing**: 27/27 new, 375/375 full suite (baseline 348 + 27)
+- **Layers used**: Unit — pure function (5), Unit — hand-written in-memory port fakes, no mocking library, no casts (22)
+- **Approval tests** (refactoring): None — no refactoring tasks in this slice
+- **Pure functions created**: 1 (`safeParseRules`); the two use cases are factories closing over injected async dependencies, not pure, by design (D8-equivalent for application code: they call `Date.now`-equivalent via injected `now`/`newId`, never directly)
+
+## Work Unit Evidence (S3a)
+
+| Evidence | Value |
+|---|---|
+| Focused test command and exact result | `pnpm exec vitest run src/domain/rule-codec.test.ts src/application/create-challenge.test.ts src/application/join-challenge.test.ts` → 3 test files, 36 tests (14 in `rule-codec.test.ts` incl. the 5 new `safeParseRules` cases, 14 in `create-challenge.test.ts`, 8 in `join-challenge.test.ts`), all passing; full-suite confirmation: `pnpm test` → `Test Files 38 passed (38)`, `Tests 375 passed (375)` |
+| Runtime harness command/scenario and exact result | N/A — `createChallenge` and `joinChallenge` are unreferenced application-layer functions with no route or composition root calling them yet (S4b's `actions.ts` and S5b's `actions.ts` are the first callers, per the dependency graph `S3a ──► S4b`, `S3a ──► S5b`). Proven by construction: `git diff --stat` for this slice touches only `src/domain/rule-codec.ts` and `src/application/{create-challenge,join-challenge}.ts` (+ their tests); `pnpm build` shows the same 6 routes as S2, none touching these functions |
+| Rollback boundary | Revert `src/domain/rule-codec.ts` to its pre-S3a state (removing `safeParseRules`/`ParsedRules`) and delete `src/application/create-challenge.ts`, `src/application/create-challenge.test.ts`, `src/application/join-challenge.ts`, `src/application/join-challenge.test.ts`. Nothing else in the repo imports any of these three new/changed symbols yet (S4a/S4b/S5b have not landed), so this reverts cleanly with no orphaned imports. |
+
+## Verification (S3a, task 3a.7)
+
+| Command | Result |
+|---|---|
+| `pnpm test` | exit 0 — `Test Files 38 passed (38)`, `Tests 375 passed (375)` (baseline 348 + 27 new) |
+| `pnpm typecheck` | exit 0 — `next typegen`, `wrangler types`, `tsc --noEmit` all clean |
+| `pnpm lint` | exit 0 |
+| `pnpm build` | exit 0 — compiled successfully, same 6 routes as S0/S1/S2 (`/`, `/_not-found`, `/account`, `/api/auth/[...nextauth]`, `/privacy`, `/terms`), all still `ƒ` dynamic — expected, since S3a adds no route |
+
+## Review budget measurement (S3a)
+
+Measured per sub-slice with `git diff --stat <base>..HEAD -- ':!openspec/**'`: **total S3a: 746 authored lines** (84 + 395 + 267, see table) — well above the tasks-agent's own 250–400 estimate for the whole slice, and above what its single pre-authorized two-way example split (`feat/challenge-ui-s3a-i-rules-and-create` = 3a.1–3a.4, `feat/challenge-ui-s3a-ii-join` = 3a.5–3a.6) would have fit: measuring that exact split shows 3a.1–3a.4 alone is 480 lines, already over budget.
+
+One honest slicing pass over the actual per-task-pair sizes found a **three-way** cohesive split, each slice under 400 raw changed lines with no code shrunk, no test or comment removed to fit — nothing in `createChallenge`'s or `joinChallenge`'s hand-written fakes could be trimmed without breaking the task's explicit "no mocking library, no casts" requirement, since implementing a port fake means stubbing every method the interface declares (9 on `ChallengeRepository`, 5 on `RiotAccountRepository`), not just the ones each use case calls:
+
+| Sub-slice | Tasks | Files | Base | Raw changed lines | Builds/tests alone because |
+|---|---|---|---|---|---|
+| **S3a-i** — `safeParseRules` | 3a.1, 3a.2 | `src/domain/rule-codec.{ts,test.ts}` | `feat/challenge-ui-s2-ports-adapters` | 84 | Additive to an existing domain module; nothing calls `safeParseRules` yet; `pnpm exec vitest run src/domain/rule-codec.test.ts` clean in isolation |
+| **S3a-ii** — `createChallenge` | 3a.3, 3a.4 | `src/application/create-challenge.{ts,test.ts}` | S3a-i | 395 | Imports only `safeParseRules` from S3a-i and the pre-existing ports; no route calls it yet; `pnpm exec vitest run src/application/create-challenge.test.ts` clean in isolation |
+| **S3a-iii** — `joinChallenge` + verify | 3a.5, 3a.6, 3a.7 | `src/application/join-challenge.{ts,test.ts}`, `tasks.md`, this file | S3a-ii | 267 | Imports only the pre-existing ports, independent of `createChallenge`; carries the full `pnpm typecheck && pnpm lint && pnpm build && pnpm test` run reported above |
+
+Neither needs a `size:exception`. Branches, in `feature-branch-chain` order: `feat/challenge-ui-s3a-i-rule-codec` (targets `feat/challenge-ui-s2-ports-adapters`) → `feat/challenge-ui-s3a-ii-create-challenge` (targets S3a-i) → `feat/challenge-ui-s3a-iii-join-challenge` (targets S3a-ii, current branch). Commit SHAs: S3a-i ends at `257c675`, S3a-ii ends at `e9e3f3d`, S3a-iii (HEAD) is committed alongside this apply-progress update.
+
+**Deviation from the tasks-agent's own example, stated plainly:** the tasks artifact's own suggested split for "if the measured total exceeds 400" (`feat/challenge-ui-s3a-i-rules-and-create` = 3a.1–3a.4, `feat/challenge-ui-s3a-ii-join` = 3a.5–3a.6) does not fit — measured, 3a.1–3a.4 alone is 480 lines. The three-way split above keeps every branch under 400 with nothing shrunk, following the same reasoning S1's apply-progress already established for this exact situation (a pre-authorized example split proving too coarse once measured). Branch names follow the existing `s{phase}{roman}-{description}` convention used by S1 (`s1a`/`s1b`/`s1c`/`s1d`) rather than the two originally-named branches, since those two names described a split that measurement disproved.
+
 ## Remaining tasks (not in this apply)
 
-- [x] Phase S2 (ports + adapters) — 7/7 tasks complete (see above)
-- [ ] Phase S3a (write use cases) — 7 tasks, depends on S2 (now unblocked)
-- [ ] Phase S3b (read use cases) — 7 tasks, depends on S3a
-- [ ] Phase S4a (rule builder + presets) — 4 tasks, depends on S1 (now unblocked), S3a
+- [x] Phase S3a (write use cases) — 7/7 tasks complete (see above)
+- [ ] Phase S3b (read use cases) — 7 tasks, depends on S3a (now unblocked)
+- [ ] Phase S4a (rule builder + presets) — 4 tasks, depends on S1 (now unblocked), S3a (now unblocked)
 - [ ] Phase S4b (`/challenges/new` route) — 4 tasks, depends on S4a, S3b
 - [ ] Phase S5a (`/challenges` browse) — 3 tasks, depends on S1 (now unblocked), S3b
 - [ ] Phase S5b (`/challenges/[id]` view + join) — 7 tasks (+ contingent split), depends on S1 (now unblocked), S3b, S5a
@@ -276,3 +336,10 @@ None.
 - Current work unit: Phase S2 — Ports + adapters (all 7 tasks)
 - Boundary: starts from S1's shipped primitive set; ends with `listPublic`, `listProgressForChallenge`, and `findById` landed on their respective ports and adapters, covered by 19 new adapter tests, with the two existing in-memory application fakes extended to keep typecheck green — buildable and fully verified, no known issues, no route or use case calls any of the three new methods yet
 - Review budget: 340 authored lines, under 400; no `size:exception` — see "Review budget measurement (S2)"
+
+### S3a
+
+- Mode: chained PR slice (`feature-branch-chain`) — three PRs, each targeting the previous slice's branch (S3a-i → `feat/challenge-ui-s2-ports-adapters`; S3a-ii → S3a-i; S3a-iii → S3a-ii)
+- Current work unit: Phase S3a — Write use cases (all 7 tasks)
+- Boundary: starts from S2's shipped ports/adapters; ends with `safeParseRules`, `createChallenge`, and `joinChallenge` landed with 27 new unit tests against hand-written in-memory port fakes — buildable and fully verified, no known issues, no route or composition root calls any of the three new/changed symbols yet
+- Review budget: S3a delivered as S3a-i (84) + S3a-ii (395) + S3a-iii (267), all under 400; no `size:exception` — see "Review budget measurement (S3a)" for why the tasks-agent's own two-way example didn't hold and how the three-way split was derived
