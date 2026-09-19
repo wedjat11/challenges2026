@@ -6,10 +6,11 @@ import { cn } from "@/lib/cn";
 /**
  * design-system: UI Primitives and Their States.
  *
- * No `"use client"` here (D8) — `onRemove` stays a plain optional prop, so
- * a server component can render `Tag` with no interactivity at all, and
- * only a client ancestor (the rule builder, `"use client"`) that actually
- * wires `onRemove` pulls this component into a client-rendered subtree.
+ * No client-boundary directive here (D8) — `onRemove` stays a plain optional
+ * prop, so a server component can render `Tag` with no interactivity at
+ * all, and only a client ancestor (the rule builder, which does carry that
+ * directive) that actually wires `onRemove` pulls this component into a
+ * client-rendered subtree.
  */
 
 export type TagProps = {

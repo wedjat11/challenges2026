@@ -7,7 +7,7 @@ import { cn } from "@/lib/cn";
  * design-system: UI Primitives and Their States (Disabled primitive is
  * non-interactive; Button loading state blocks resubmission).
  *
- * No `"use client"` (D8): hover/press/focus states are Tailwind variants,
+ * No client-boundary directive (D8): hover/press/focus states are Tailwind variants,
  * not React state. No `onClick` prop — the type omits it, so a caller
  * relies on `type="submit"` inside a `<form action>` or a native `formAction`,
  * matching every form pattern already in this repo (`/account`).
