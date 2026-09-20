@@ -111,17 +111,7 @@
   --container-prose: var(--bal-container-prose);
   --ease-standard: var(--bal-ease-standard);
   --ease-out-bal: var(--bal-ease-out);
-
-  /* R7 compatibility aliases — DELETED IN S6 (D7) */
-  --color-background: var(--bg-canvas);
-  --color-foreground: var(--bal-text-body-color);
 }
-
-/* S0→S6 shim. The product is dark-only (A8), but six pre-existing files still
-   carry `dark:` pairs resolved from prefers-color-scheme. Without this, a
-   visitor on a light OS gets `text-black/70` on a #08090A canvas. Deleted in
-   S6 once those pairs are on semantic tokens. */
-@custom-variant dark (&:where(:root, :root *));
 
 @layer base {
   :root {
