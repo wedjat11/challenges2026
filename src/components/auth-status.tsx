@@ -11,6 +11,10 @@ import { auth, signOut } from "@/auth";
  *
  * A plain `img`, not `next/image`: the avatar comes from Discord's CDN, and
  * whitelisting that host in `next.config.ts` is out of scope for this task.
+ *
+ * Restyled in S6 (design.md §5, "Duplicate link"): the signed-in branch no
+ * longer renders its own "Your account" link — `SiteHeader` (S0) already
+ * owns that destination in its three-item nav.
  */
 export async function AuthStatus({ from }: { from?: string } = {}) {
   const session = await auth();
@@ -19,7 +23,7 @@ export async function AuthStatus({ from }: { from?: string } = {}) {
     return (
       <Link
         href={withReturnPath("/login", from)}
-        className="rounded-md border border-black/10 px-4 py-2 text-sm font-medium dark:border-white/15"
+        className="rounded-md border border-border-hairline px-4 py-2 text-sm font-medium"
       >
         Sign in with Discord
       </Link>
@@ -45,12 +49,9 @@ export async function AuthStatus({ from }: { from?: string } = {}) {
         />
       ) : null}
       <span className="text-sm font-medium">{session.user.name}</span>
-      <Link href="/account" className="text-sm text-black/70 underline dark:text-white/70">
-        Your account
-      </Link>
       <button
         type="submit"
-        className="rounded-md border border-black/10 px-3 py-1.5 text-sm dark:border-white/15"
+        className="rounded-md border border-border-hairline px-3 py-1.5 text-sm"
       >
         Sign out
       </button>
