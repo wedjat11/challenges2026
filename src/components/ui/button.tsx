@@ -44,6 +44,27 @@ export type ButtonProps = {
   loading?: boolean;
 } & Omit<ButtonHTMLAttributes<HTMLButtonElement>, "onClick">;
 
+/**
+ * Additive export (S5a deviation, see apply-progress.md) — `Button` renders
+ * a `<button>` and has no `href`, so a caller that needs a `<a>`/`next/link`
+ * styled identically (e.g. a primary call-to-action link) cannot render
+ * `<Button>` at all without nesting an invalid `<button>` inside an `<a>`.
+ * Reuses the exact same class maps `Button` renders from, so the two never
+ * drift apart — see the `buttonClassName` describe block in
+ * `button.test.tsx`, which asserts this by comparing against `Button`'s own
+ * rendered `class` attribute rather than pinning a literal string.
+ */
+export function buttonClassName(options: {
+  variant?: ButtonVariant;
+  size?: ButtonSize;
+  fullWidth?: boolean;
+  className?: string;
+} = {}): string {
+  const { variant = "primary", size = "md", fullWidth = false, className } = options;
+
+  return cn(BASE_CLASSES, VARIANT_CLASSES[variant], SIZE_CLASSES[size], fullWidth && "w-full", className);
+}
+
 export function Button({
   children,
   variant = "primary",
