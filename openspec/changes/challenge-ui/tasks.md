@@ -192,9 +192,9 @@ S2 ──► S3a ──► S3b ─────┴──► S5a ──► S5b ─
 **Depends on**: S1, S3b
 **Est. changed lines**: 150–250
 
-- [ ] 5a.1 Create `src/components/ui/challenge-card.tsx` — `{ href, title, state: ChallengeState, ruleText: string[], endsAt: Date }`, `accentEdge` when `state === "live"`, whole card wrapped in a `next/link` (D10, reduced from the export's coin/tier/stake props) — design-system: UI Primitives and Their States, No Gamification or Social Surface
-- [ ] 5a.2 Create `src/app/challenges/page.tsx` (server) — calls `listPublicChallenges()`, renders a `<ul>` of `Card as="li"` (via `ChallengeCard`), or the designed empty state (`Card` with "No challenges are running right now." plus a primary `Button` linking to "/challenges/new") — challenge-discovery: Public Read Access, Listing Scope — Active Public Challenges Only, Ordering — Soonest-Ending First, Empty State, No Gamification Chrome on the Browse List
-- [ ] 5a.3 Verify: `pnpm typecheck && pnpm lint && pnpm build`; manually browse with active challenges and with zero, incl. the empty state, against a seeded local D1 (cards link to a 404 until S5b lands — expected within the chain)
+- [x] 5a.1 Create `src/components/ui/challenge-card.tsx` — `{ href, title, state: ChallengeState, ruleText: string[], endsAt: Date }`, `accentEdge` when `state === "live"`, whole card wrapped in a `next/link` (D10, reduced from the export's coin/tier/stake props) — design-system: UI Primitives and Their States, No Gamification or Social Surface
+- [x] 5a.2 Create `src/app/challenges/page.tsx` (server) — calls `listPublicChallenges()`, renders a `<ul>` of `Card as="li"` (via `ChallengeCard`), or the designed empty state (`Card` with "No challenges are running right now." plus a primary `Button` linking to "/challenges/new") — challenge-discovery: Public Read Access, Listing Scope — Active Public Challenges Only, Ordering — Soonest-Ending First, Empty State, No Gamification Chrome on the Browse List
+- [x] 5a.3 Verify: `pnpm typecheck && pnpm lint && pnpm build`; manually browse with active challenges and with zero, incl. the empty state, against a seeded local D1 (cards link to a 404 until S5b lands — expected within the chain)
 
 ---
 
