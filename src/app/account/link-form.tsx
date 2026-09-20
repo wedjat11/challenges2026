@@ -3,6 +3,9 @@
 import { useActionState } from "react";
 
 import { linkRiotAccountAction, type LinkRiotAccountActionState } from "@/app/account/actions";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Select } from "@/components/ui/select";
 import {
   DEFAULT_PLATFORM,
   PLATFORM_LABELS,
@@ -43,63 +46,44 @@ const INVALID_RIOT_ID_MESSAGES: Record<RiotIdParseReason, string> = {
   tag_line_format: "Tag line must be 3–5 letters or numbers.",
 };
 
+const PLATFORM_OPTIONS = PLATFORMS.map((platform) => ({
+  value: platform,
+  label: PLATFORM_LABELS[platform],
+}));
+
 const INITIAL_STATE: LinkRiotAccountActionState | null = null;
 
+/**
+ * Ported onto the S1 form primitives (design.md §6.2 deviation note): same
+ * `name`s (`riotId`, `platform`), `id`s, labels, `required`, `defaultValue`,
+ * and `useActionState` wiring as before — only the rendering shifted from
+ * raw `<input>`/`<select>`/`<button>` to `Input`/`Select`/`Button`, which
+ * drops every light-OS-variant utility pair here by construction (D9's
+ * uncontrolled contract is unaffected: no `value`/`onChange` was added).
+ */
 export function LinkRiotAccountForm() {
   const [state, formAction, isPending] = useActionState(linkRiotAccountAction, INITIAL_STATE);
   const message = messageFor(state);
   const succeeded = state?.kind === "linked" || state?.kind === "already_linked";
 
   return (
-    <form action={formAction} className="space-y-4">
-      <div>
-        <label htmlFor="riotId" className="block text-sm font-medium">
-          Riot ID
-        </label>
-        <input
-          id="riotId"
-          name="riotId"
-          type="text"
-          placeholder="GameName#TAG"
-          required
-          className="mt-1 w-full rounded-md border border-black/10 bg-transparent px-3 py-2 text-sm dark:border-white/15"
-        />
-      </div>
+    <form action={formAction} className="flex flex-col gap-4">
+      <Input id="riotId" name="riotId" label="Riot ID" type="text" placeholder="GameName#TAG" required />
 
-      <div>
-        <label htmlFor="platform" className="block text-sm font-medium">
-          Platform
-        </label>
-        <select
-          id="platform"
-          name="platform"
-          defaultValue={DEFAULT_PLATFORM}
-          className="mt-1 w-full rounded-md border border-black/10 bg-transparent px-3 py-2 text-sm dark:border-white/15"
-        >
-          {PLATFORMS.map((platform) => (
-            <option key={platform} value={platform}>
-              {PLATFORM_LABELS[platform]}
-            </option>
-          ))}
-        </select>
-      </div>
+      <Select
+        id="platform"
+        name="platform"
+        label="Platform"
+        defaultValue={DEFAULT_PLATFORM}
+        options={PLATFORM_OPTIONS}
+      />
 
-      <button
-        type="submit"
-        disabled={isPending}
-        className="rounded-md border border-black/10 px-4 py-2 text-sm font-medium disabled:opacity-50 dark:border-white/15"
-      >
+      <Button type="submit" variant="outline" disabled={isPending} loading={isPending}>
         {isPending ? "Linking…" : "Link account"}
-      </button>
+      </Button>
 
       {message ? (
-        <p
-          className={
-            succeeded
-              ? "text-sm text-green-600 dark:text-green-400"
-              : "text-sm text-red-600 dark:text-red-400"
-          }
-        >
+        <p className={succeeded ? "text-body-sm text-green-500" : "text-body-sm text-red-500"}>
           {message}
         </p>
       ) : null}
