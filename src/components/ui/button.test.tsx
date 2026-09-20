@@ -1,7 +1,12 @@
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 
-import { Button } from "@/components/ui/button";
+import { Button, buttonClassName } from "@/components/ui/button";
+
+/** Pulls the rendered `class="..."` attribute out of a static-render html string. */
+function classAttribute(html: string): string | undefined {
+  return html.match(/class="([^"]*)"/)?.[1];
+}
 
 describe("Button", () => {
   it("forces disabled and aria-busy, and renders the loader glyph, when loading", () => {
@@ -74,5 +79,37 @@ describe("Button", () => {
     const full = renderToStaticMarkup(<Button fullWidth>Go</Button>);
 
     expect(normal).not.toBe(full);
+  });
+});
+
+describe("buttonClassName", () => {
+  // These primitives ship without a `Link`-flavoured variant, but a caller
+  // that needs an `<a>` styled identically to `Button` (e.g. the browse
+  // page's empty-state CTA, which must not nest a `<button>` inside an
+  // `<a>`) needs a class list that is provably identical to what `Button`
+  // itself renders for the same variant/size/fullWidth — not a hand-copied
+  // duplicate that can drift.
+  it("matches Button's own rendered class list for the default variant and size", () => {
+    const html = renderToStaticMarkup(<Button>Go</Button>);
+    expect(buttonClassName()).toBe(classAttribute(html));
+  });
+
+  it("matches Button's own rendered class list for a non-default variant and size", () => {
+    const html = renderToStaticMarkup(
+      <Button variant="outline" size="lg">
+        Go
+      </Button>,
+    );
+    expect(buttonClassName({ variant: "outline", size: "lg" })).toBe(classAttribute(html));
+  });
+
+  it("matches Button's own rendered class list when fullWidth is set", () => {
+    const html = renderToStaticMarkup(<Button fullWidth>Go</Button>);
+    expect(buttonClassName({ fullWidth: true })).toBe(classAttribute(html));
+  });
+
+  it("appends a caller-supplied className, matching Button's own merge behaviour", () => {
+    const html = renderToStaticMarkup(<Button className="mt-4">Go</Button>);
+    expect(buttonClassName({ className: "mt-4" })).toBe(classAttribute(html));
   });
 });
