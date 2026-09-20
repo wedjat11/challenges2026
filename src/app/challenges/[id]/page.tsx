@@ -5,7 +5,9 @@ import { createChallengeRepository } from "@/adapters/db/challenge-repository";
 import { createPollingRepository } from "@/adapters/db/polling-repository";
 import { createRiotAccountRepository } from "@/adapters/db/riot-account-repository";
 import { ChallengeViewBody } from "@/app/challenges/[id]/challenge-view-body";
+import { JoinForm } from "@/app/challenges/[id]/join-form";
 import { getChallengeView } from "@/application/get-challenge-view";
+import { auth } from "@/auth";
 import { getAppDb } from "@/lib/db";
 
 /**
@@ -34,29 +36,42 @@ export async function generateMetadata(
  * `notFound()` is called in the render path (Next docs) — challenge-view:
  * Unknown Challenge Id Renders Not Found.
  *
- * This is the S5b-i cut (tasks 5b.1–5b.3): a complete, readable, shareable
- * view with no Join control — `joinSlot` is left unset here on purpose.
- * Task 5b.4's `JoinForm` is wired in as an additive edit to this file, not
- * a rewrite, matching the "view and join share one page composition"
- * exception note in tasks.md — see apply-progress.md's S5b section.
+ * `JoinForm` is wired in additively (task 5b.5) on top of the S5b-i cut
+ * (tasks 5b.1–5b.3, no Join control) — matching the "view and join share
+ * one page composition" exception note in tasks.md; see apply-progress.md's
+ * S5b section. `accounts` is `null` when there is no session (JoinForm
+ * renders a sign-in link instead of a picker) rather than an auth gate on
+ * the whole page — the page itself stays readable signed out.
  */
 export default async function ChallengePage(props: PageProps<"/challenges/[id]">) {
   const { id } = await props.params;
   const db = await getAppDb();
   const now = new Date();
 
-  const result = await getChallengeView({
-    challenges: createChallengeRepository(db),
-    riotAccounts: createRiotAccountRepository(db),
-    polling: createPollingRepository(db),
-    now: () => now,
-  })(id);
+  const [result, session] = await Promise.all([
+    getChallengeView({
+      challenges: createChallengeRepository(db),
+      riotAccounts: createRiotAccountRepository(db),
+      polling: createPollingRepository(db),
+      now: () => now,
+    })(id),
+    auth(),
+  ]);
 
   if (result.kind === "not_found") notFound();
 
+  const accounts = session?.user?.id
+    ? await createRiotAccountRepository(db).listByUser(session.user.id)
+    : null;
+
   return (
     <main className="mx-auto w-full max-w-container-max px-5 py-10 lg:px-10 lg:py-16">
-      <ChallengeViewBody view={result.view} shareUrl={`/challenges/${id}`} now={now} />
+      <ChallengeViewBody
+        view={result.view}
+        shareUrl={`/challenges/${id}`}
+        now={now}
+        joinSlot={<JoinForm challengeId={id} accounts={accounts} />}
+      />
     </main>
   );
 }
