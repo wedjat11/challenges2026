@@ -7,9 +7,7 @@ export function LegalPage({ title, children }: { title: string; children: ReactN
   return (
     <main className="mx-auto w-full max-w-3xl px-6 py-16">
       <h1 className="text-3xl font-semibold tracking-tight">{title}</h1>
-      <p className="mt-2 text-sm text-black/60 dark:text-white/60">
-        Last updated {LAST_UPDATED}
-      </p>
+      <p className="mt-2 text-sm text-text-muted">Last updated {LAST_UPDATED}</p>
       <div className="mt-10 flex flex-col gap-8 text-sm leading-relaxed">{children}</div>
     </main>
   );
