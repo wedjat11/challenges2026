@@ -238,6 +238,7 @@ function RuleEditor({
       <div className="flex items-end justify-between gap-3">
         <Input
           label={`Rule ${ruleIndex + 1} target`}
+          id={`rule-${ruleIndex}-target`}
           type="number"
           min={1}
           defaultValue={rule.target}
