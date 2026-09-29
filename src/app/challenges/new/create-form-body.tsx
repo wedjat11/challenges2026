@@ -198,7 +198,7 @@ export function CreateFormBody({ accounts, state, formAction, pending }: CreateF
               className="text-left"
               onClick={() => setPresetId(preset.id)}
             >
-              <Card as="article" padding="md" interactive accentEdge={presetId === preset.id}>
+              <Card padding="md" interactive accentEdge={presetId === preset.id}>
                 <p className="text-body font-medium text-text-primary">{preset.label}</p>
                 <p className="mt-1 text-body-sm text-text-secondary">{preset.description}</p>
               </Card>
@@ -209,12 +209,7 @@ export function CreateFormBody({ accounts, state, formAction, pending }: CreateF
             className="text-left"
             onClick={() => setPresetId(SCRATCH_PRESET_ID)}
           >
-            <Card
-              as="article"
-              padding="md"
-              interactive
-              accentEdge={presetId === SCRATCH_PRESET_ID}
-            >
+            <Card padding="md" interactive accentEdge={presetId === SCRATCH_PRESET_ID}>
               <p className="text-body font-medium text-text-primary">Start from scratch</p>
               <p className="mt-1 text-body-sm text-text-secondary">
                 Build a custom rule with no starting point.
