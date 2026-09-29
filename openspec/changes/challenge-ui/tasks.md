@@ -227,13 +227,13 @@ S2 ──► S3a ──► S3b ─────┴──► S5a ──► S5b ─
 **Depends on**: S1, S5b
 **Est. changed lines**: 200–300
 
-- [ ] 6.1 Restyle `src/app/page.tsx` onto the token utilities; remove its 4 `dark:` pairs; preserve markup structure and behaviour — design-system: Design Tokens as CSS Custom Properties, Mobile-First Responsive Contract
-- [ ] 6.2 Restyle `src/app/account/page.tsx` (6 `dark:` pairs) and `src/app/account/link-form.tsx` (5 `dark:` pairs) onto the token utilities; preserve markup structure and behaviour, keeping the `?reason=` banner added in S5b — design-system: Design Tokens as CSS Custom Properties
-- [ ] 6.3 Restyle `src/components/auth-status.tsx` (3 `dark:` pairs); remove its own "Your account" link now that `SiteHeader` owns that destination
-- [ ] 6.4 Restyle `src/components/site-footer.tsx` (2 `dark:` pairs) onto the same `max-w-container-max` container as the header, `border-divider`, `text-text-muted`; keep the Riot disclaimer and the two legal links untouched
-- [ ] 6.5 Restyle `src/components/legal-page.tsx` (1 `dark:` pair)
-- [ ] 6.6 Modify `src/app/globals.css`: delete `@custom-variant dark (&:where(:root, :root *));` and the two R7 compatibility aliases (`--color-background`, `--color-foreground`) now that no file reads them (D7)
-- [ ] 6.7 Verify: `pnpm typecheck && pnpm lint && pnpm build`; every page readable at 390px and desktop; `rg "dark:" src/` returns nothing
+- [x] 6.1 Restyle `src/app/page.tsx` onto the token utilities; remove its 4 `dark:` pairs; preserve markup structure and behaviour — design-system: Design Tokens as CSS Custom Properties, Mobile-First Responsive Contract
+- [x] 6.2 Restyle `src/app/account/page.tsx` (6 `dark:` pairs) and `src/app/account/link-form.tsx` (5 `dark:` pairs) onto the token utilities; preserve markup structure and behaviour, keeping the `?reason=` banner added in S5b — design-system: Design Tokens as CSS Custom Properties
+- [x] 6.3 Restyle `src/components/auth-status.tsx` (3 `dark:` pairs); remove its own "Your account" link now that `SiteHeader` owns that destination
+- [x] 6.4 Restyle `src/components/site-footer.tsx` (2 `dark:` pairs) onto the same `max-w-container-max` container as the header, `border-divider`, `text-text-muted`; keep the Riot disclaimer and the two legal links untouched
+- [x] 6.5 Restyle `src/components/legal-page.tsx` (1 `dark:` pair)
+- [x] 6.6 Modify `src/app/globals.css`: delete `@custom-variant dark (&:where(:root, :root *));` and the two R7 compatibility aliases (`--color-background`, `--color-foreground`) now that no file reads them (D7)
+- [x] 6.7 Verify: `pnpm typecheck && pnpm lint && pnpm build`; every page readable at 390px and desktop; `rg "dark:" src/` returns nothing
 
 ---
 
