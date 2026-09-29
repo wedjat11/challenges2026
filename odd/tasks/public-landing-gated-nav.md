@@ -87,3 +87,13 @@ Note: the e2e run logs a pre-existing, unrelated React warning ("Cannot update a
 ## Next step
 
 Implementation complete (N1–N4), all checks green. Orchestrator: gate, take browser screenshots, run the native review (receipt-driven development is on) — decide between the two-PR chain (`-i-header` → `-ii-landing`) or a single PR against `docs/challenge-ui-archive` with `size:exception` for the 9-line overage — then push and open the PR(s). Do not restart the port-3100 dev server; it was stopped for `pnpm test:e2e` and left down per the environment facts.
+
+## Native review (receipt-driven development)
+
+Lineage `review-78502c43983f0cb0`, four lenses, candidate = the committed diff of `feat/public-landing-gated-nav` against `docs/challenge-ui-archive`. Outcome: **approved**, acknowledged and burned on 2026-09-28. The risk lens found no new data exposure, no authorization moved to the client, and no new redirect sink; hiding the navigation grants or removes no route access. One lens capture failed once on the provider side (the reviewer model's safeguards flagged the request) and succeeded on the single relaunch the bound status re-offered. Every finding below is advisory and non-blocking; the review contract treats them as separate later work.
+
+## Follow-ups (not in this feature's PRs)
+
+- [ ] G1 Session resolved up to three times per request: `SiteHeader` awaits `auth()` and still renders the async `AuthStatus`, which resolves it again; `/` adds a third read in `page.tsx`. Thread one resolved value through: let `AuthStatus` accept the session (or the user) as a prop, have the header pass it, and have the landing reuse the header's read or a request-scoped cached `auth()`. This also removes the "torn read" case where the hero and the header could disagree mid-render.
+- [ ] G2 Tests assert less than they claim: the hero subtitle assertion is truncated, the "single Log in link" test does not count links, the moved signed-in copy is not asserted after the move, and the `AuthStatus` "Log in" relabel has no assertion at all (untestable root; cover it in the e2e spec or by extracting the label).
+- [ ] G3 Readability: the header body test cites a rationale section that does not say what the comment claims; `hero.tsx`'s doc comment gives two different reasons for the split; the task document's line about the relabel contradicts itself; the two signed-out controls (header and `AuthStatus`) now share the same "Log in" copy, so a mixed state would be indistinguishable from a bug.
