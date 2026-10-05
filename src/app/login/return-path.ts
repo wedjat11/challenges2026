@@ -30,3 +30,17 @@ export function withReturnPath(path: string, from: string | undefined | null): s
 
   return `${path}?from=${encodeURIComponent(from)}`;
 }
+
+/**
+ * Builds the `/login` redirect target for the `?invalid=email` field-level
+ * error (D18): the typed email failed `normalizeEmail`, so the sign-in
+ * Server Function redirects back here instead of calling `signIn`. Re-runs
+ * `safeReturnPath(from, "")` so a hostile `from` is dropped on this error
+ * round trip too, not only on the success one.
+ */
+export function invalidEmailLoginPath(from: unknown): string {
+  const safeFrom = safeReturnPath(from, "");
+  if (!safeFrom) return "/login?invalid=email";
+
+  return `/login?invalid=email&from=${encodeURIComponent(safeFrom)}`;
+}
