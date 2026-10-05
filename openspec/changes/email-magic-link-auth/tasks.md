@@ -93,14 +93,14 @@ The linear chain order above (S0 → S1 → S2 → S3b-i → S3a → S4 → S3b-
 **Est. changed lines**: 280–400 (median 340 — contingent split, see below)
 **Strict TDD — RED first** for every pair below.
 
-- [ ] 1.1 Run `pnpm db:generate` to produce `drizzle/0002_auth_email_tables.sql` (`verification_tokens`, `auth_email_throttle`) — generated, unedited
-- [ ] 1.2 Modify `src/db/schema.ts`: add `verificationTokens` and `authEmailThrottle` table definitions per the schema diff in design.md §1; `users` is untouched in this slice
-- [ ] 1.3 Create `src/domain/ports/verification-token-repository.ts` — `VerificationToken` type, `create"/"consume` signatures — email-authentication: Magic-Link Token Single-Use and TTL, Concurrent Link Requests Do Not Invalidate Each Other
-- [ ] 1.4 RED: `src/adapters/db/verification-token-repository.test.ts` over `createTestDb()` — create→consume round trip; consume twice → `null` the second time; wrong token or wrong identifier → `null`; an expired row is still returned by `consume` (Auth.js owns the comparison) **and** is reaped by the next `create` for that identifier; a live token for the same identifier survives that reap (A6)
-- [ ] 1.5 GREEN: create `src/adapters/db/verification-token-repository.ts` — `DELETE … RETURNING` for `consume` (D6), insert-then-reap for `create` (D7)
-- [ ] 1.6 Create `src/domain/ports/email-throttle-repository.ts` — `SendThrottleState` type, `find"/"save` signatures — email-authentication: Per-Address Send Throttling
-- [ ] 1.7 RED: `src/adapters/db/email-throttle-repository.test.ts` over `createTestDb()` — `find` on unknown identifier → `null`; `save` then `find` round trip; `save` twice replaces rather than duplicating (single row per identifier)
-- [ ] 1.8 GREEN: create `src/adapters/db/email-throttle-repository.ts` — one-row read / insert-or-replace
+- [x] 1.1 Run `pnpm db:generate` to produce `drizzle/0002_auth_email_tables.sql` (`verification_tokens`, `auth_email_throttle`) — generated, unedited
+- [x] 1.2 Modify `src/db/schema.ts`: add `verificationTokens` and `authEmailThrottle` table definitions per the schema diff in design.md §1; `users` is untouched in this slice
+- [x] 1.3 Create `src/domain/ports/verification-token-repository.ts` — `VerificationToken` type, `create"/"consume` signatures — email-authentication: Magic-Link Token Single-Use and TTL, Concurrent Link Requests Do Not Invalidate Each Other
+- [x] 1.4 RED: `src/adapters/db/verification-token-repository.test.ts` over `createTestDb()` — create→consume round trip; consume twice → `null` the second time; wrong token or wrong identifier → `null`; an expired row is still returned by `consume` (Auth.js owns the comparison) **and** is reaped by the next `create` for that identifier; a live token for the same identifier survives that reap (A6)
+- [x] 1.5 GREEN: create `src/adapters/db/verification-token-repository.ts` — `DELETE … RETURNING` for `consume` (D6), insert-then-reap for `create` (D7)
+- [x] 1.6 Create `src/domain/ports/email-throttle-repository.ts` — `SendThrottleState` type, `find"/"save` signatures — email-authentication: Per-Address Send Throttling
+- [x] 1.7 RED: `src/adapters/db/email-throttle-repository.test.ts` over `createTestDb()` — `find` on unknown identifier → `null`; `save` then `find` round trip; `save` twice replaces rather than duplicating (single row per identifier)
+- [x] 1.8 GREEN: create `src/adapters/db/email-throttle-repository.ts` — one-row read / insert-or-replace
 - [ ] 1.9 Verify: `pnpm test` (1.4/1.7 GREEN — also proves `0002` replays cleanly in `createTestDb()`); `pnpm typecheck && pnpm lint && pnpm build`. Purely additive; nothing references either table yet.
 
 **Contingent split — measure before opening the PR.** After 1.5, run `git diff --stat` against S0's branch. If the total exceeds 400 authored lines, split before continuing:
