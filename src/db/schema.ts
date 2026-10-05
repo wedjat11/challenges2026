@@ -182,6 +182,36 @@ export const pollState = sqliteTable(
   ],
 );
 
+/**
+ * Auth.js's minimal verification-token shape (@auth/core/adapters.d.ts:232-241).
+ * `token` is already SHA-256 hashed with AUTH_SECRET by the time Auth.js hands
+ * it over (lib/utils/web.js:75-82), so the raw bearer value never reaches this
+ * codebase or this database. No index on `expires`: the only query that filters
+ * it also filters `identifier`, which the primary key's leading column covers (D5).
+ */
+export const verificationTokens = sqliteTable(
+  "verification_tokens",
+  {
+    identifier: text("identifier").notNull(),
+    token: text("token").notNull(),
+    expires: integer("expires", { mode: "timestamp_ms" }).notNull(),
+  },
+  (table) => [primaryKey({ columns: [table.identifier, table.token] })],
+);
+
+/**
+ * One fixed-size row per address that has ever requested a link, so a flood
+ * costs one row per distinct address rather than one row per request.
+ * `window_started_at`/`sent_in_window` are the rolling-hour cap;
+ * `last_sent_at` is the 60-second cooldown. See domain/send-throttle.ts.
+ */
+export const authEmailThrottle = sqliteTable("auth_email_throttle", {
+  identifier: text("identifier").primaryKey(),
+  lastSentAt: integer("last_sent_at", { mode: "timestamp_ms" }).notNull(),
+  windowStartedAt: integer("window_started_at", { mode: "timestamp_ms" }).notNull(),
+  sentInWindow: integer("sent_in_window").notNull().default(0),
+});
+
 export const usersRelations = relations(users, ({ many }) => ({
   riotAccounts: many(riotAccounts),
   challenges: many(challenges),
@@ -215,3 +245,5 @@ export type Participant = typeof participants.$inferSelect;
 export type Progress = typeof progress.$inferSelect;
 export type CachedMatch = typeof matchCache.$inferSelect;
 export type PollState = typeof pollState.$inferSelect;
+export type VerificationToken = typeof verificationTokens.$inferSelect;
+export type SendThrottleState = typeof authEmailThrottle.$inferSelect;
