@@ -101,7 +101,7 @@ The linear chain order above (S0 → S1 → S2 → S3b-i → S3a → S4 → S3b-
 - [x] 1.6 Create `src/domain/ports/email-throttle-repository.ts` — `SendThrottleState` type, `find"/"save` signatures — email-authentication: Per-Address Send Throttling
 - [x] 1.7 RED: `src/adapters/db/email-throttle-repository.test.ts` over `createTestDb()` — `find` on unknown identifier → `null`; `save` then `find` round trip; `save` twice replaces rather than duplicating (single row per identifier)
 - [x] 1.8 GREEN: create `src/adapters/db/email-throttle-repository.ts` — one-row read / insert-or-replace
-- [ ] 1.9 Verify: `pnpm test` (1.4/1.7 GREEN — also proves `0002` replays cleanly in `createTestDb()`); `pnpm typecheck && pnpm lint && pnpm build`. Purely additive; nothing references either table yet.
+- [x] 1.9 Verify: `pnpm test` (1.4/1.7 GREEN — also proves `0002` replays cleanly in `createTestDb()`); `pnpm typecheck && pnpm lint && pnpm build`. Purely additive; nothing references either table yet.
 
 **Contingent split — measure before opening the PR.** After 1.5, run `git diff --stat` against S0's branch. If the total exceeds 400 authored lines, split before continuing:
 - **S1a** (`feat/email-magic-link-auth-s1a`): `drizzle/0002_*.sql`, `schema.ts`, the verification-token port and adapter + test (tasks 1.1–1.5). Est. 170–240.
